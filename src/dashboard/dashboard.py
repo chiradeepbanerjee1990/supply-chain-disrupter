@@ -28,6 +28,101 @@ def show_rag_search() -> None:
                 st.json(metadata)
 
 
+<<<<<<< HEAD
+=======
+# def show_scenario_analyzer() -> None:
+#     st.title("Scenario Analyzer")
+#     st.caption(
+#         "Runs against records from Varun's electronics workbook and live "
+#         "Open-Meteo weather data."
+#     )
+#     ensure_schema()
+#     try:
+#         options = fetch_scenario_options()
+#     except Exception:
+#         options = []
+
+#     if not options:
+#         st.warning("Build the SQLite database before running a scenario.")
+#         return
+
+#     with st.form(key="scenario_form"):
+#         disruption_type = st.selectbox(
+#             "Disruption type",
+#             [
+#                 "earthquake",
+#                 "port closure",
+#                 "chip shortage",
+#                 "geopolitical",
+#                 "extreme weather",
+#                 "supplier lockdown",
+#             ],
+#         )
+#         selected = st.selectbox(
+#             "Historical scenario baseline",
+#             options,
+#             format_func=lambda row: (
+#                 f"{row['port']} · {row['sku']} · {row['event_date']} "
+#                 f"({row['history_points']} history points)"
+#             ),
+#         )
+#         affected_route = st.text_input("Affected route", "Supplier to destination")
+#         severity = st.slider("Severity", 0.0, 1.0, 0.6)
+#         shock_duration_days = st.number_input(
+#             "Shock duration (days)", min_value=1, max_value=180, value=30
+#         )
+#         recovery_window_days = st.number_input(
+#             "Recovery window (days)", min_value=1, max_value=180, value=60
+#         )
+#         submit = st.form_submit_button("Run scenario")
+
+#     if not submit:
+#         return
+
+#     with st.spinner("Running workflow..."):
+#         try:
+#             result = run_agent_graph(
+#                 {
+#                     "disruption_type": disruption_type,
+#                     "affected_port": selected["port"],
+#                     "affected_route": affected_route,
+#                     "severity": severity,
+#                     "shock_duration_days": shock_duration_days,
+#                     "recovery_window_days": recovery_window_days,
+#                     "synthetic_ratio": 0.0,
+#                     "sku": selected["sku"],
+#                     "event_date": selected["event_date"],
+#                 }
+#             )
+#         except Exception as exc:
+#             st.error(f"Scenario failed: {exc}")
+#             return
+
+#     st.subheader("Workflow Results")
+#     st.write("Risk label:", result.risk_label)
+#     st.write("Composite risk:", result.risk_score_composite)
+#     st.write("Weather severity:", result.live_weather_severity)
+#     if result.forecast_result:
+#         st.write("Forecast demand variance (%):", result.forecast_result.expected_drop_pct)
+#     if result.simulation_result:
+#         st.write(
+#             "Stockout probability (%):",
+#             result.simulation_result.stockout_probability_pct,
+#         )
+#         st.write("Alternate route:", result.simulation_result.alternate_route)
+#     if result.mitigation_action:
+#         st.subheader("Mitigation Recommendation")
+#         st.write(result.mitigation_action.summary)
+#         for recommendation in result.mitigation_action.recommendations:
+#             st.write(f"- {recommendation}")
+#         st.write("Cost delta:", result.mitigation_action.cost_delta)
+
+#     st.subheader("Agent Logs")
+#     for log in result.agent_logs:
+#         st.write(f"- {log}")
+
+
+>>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
 def show_scenario_analyzer() -> None:
     st.title("Scenario Analyzer")
     st.caption(
@@ -64,7 +159,13 @@ def show_scenario_analyzer() -> None:
                 f"({row['history_points']} history points)"
             ),
         )
+<<<<<<< HEAD
         affected_route = st.text_input("Affected route", "Supplier to destination")
+=======
+        affected_route = st.text_input(
+            "Affected route", "Supplier to destination"
+        )
+>>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
         severity = st.slider("Severity", 0.0, 1.0, 0.6)
         shock_duration_days = st.number_input(
             "Shock duration (days)", min_value=1, max_value=180, value=30
@@ -96,17 +197,84 @@ def show_scenario_analyzer() -> None:
             st.error(f"Scenario failed: {exc}")
             return
 
+<<<<<<< HEAD
     st.subheader("Workflow Results")
     st.write("Risk label:", result.risk_label)
     st.write("Composite risk:", result.risk_score_composite)
     st.write("Weather severity:", result.live_weather_severity)
     if result.forecast_result:
         st.write("Forecast demand variance (%):", result.forecast_result.expected_drop_pct)
+=======
+    # ─────────────────────────────────────────────
+    # WORKFLOW RESULTS
+    # ─────────────────────────────────────────────
+    st.subheader("Workflow Results")
+
+    # Risk metrics in columns
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Risk Label", result.risk_label)
+    with col2:
+        st.metric("Composite Risk", result.risk_score_composite)
+
+    # ─────────────────────────────────────────────
+    # MILESTONE 2: Weather Details
+    # ─────────────────────────────────────────────
+    st.write("Weather severity:", result.live_weather_severity)
+
+    # Weather summary text
+    if result.weather_summary:
+        st.info(f"🌤️ Weather Summary: {result.weather_summary}")
+
+    # Weather factor details
+    if result.weather_factors:
+        with st.expander("🌡️ Weather Factor Details"):
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric(
+                    "Wind Score",
+                    result.weather_factors.get("wind_score", 0)
+                )
+            with col2:
+                st.metric(
+                    "Rain Score",
+                    result.weather_factors.get(
+                        "precipitation_score", 0
+                    )
+                )
+            with col3:
+                st.metric(
+                    "Weather Code Score",
+                    result.weather_factors.get(
+                        "weather_code_score", 0
+                    )
+                )
+            st.write(
+                "Max Wind Speed:",
+                result.weather_factors.get("max_wind_speed", 0),
+                "km/h"
+            )
+            st.write(
+                "Max Precipitation:",
+                result.weather_factors.get("max_precipitation", 0),
+                "mm"
+            )
+
+    # Forecast result
+    if result.forecast_result:
+        st.write(
+            "Forecast demand variance (%):",
+            result.forecast_result.expected_drop_pct
+        )
+
+    # Simulation result
+>>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
     if result.simulation_result:
         st.write(
             "Stockout probability (%):",
             result.simulation_result.stockout_probability_pct,
         )
+<<<<<<< HEAD
         st.write("Alternate route:", result.simulation_result.alternate_route)
     if result.mitigation_action:
         st.subheader("Mitigation Recommendation")
@@ -115,11 +283,107 @@ def show_scenario_analyzer() -> None:
             st.write(f"- {recommendation}")
         st.write("Cost delta:", result.mitigation_action.cost_delta)
 
+=======
+        st.write(
+            "Alternate route:",
+            result.simulation_result.alternate_route
+        )
+
+    # ─────────────────────────────────────────────
+    # MILESTONE 1: News Signals Details
+    # ─────────────────────────────────────────────
+    if result.news_signals:
+        with st.expander("📰 News Risk Signals Details"):
+            st.write(
+                f"Total signals found: {len(result.news_signals)}"
+            )
+
+            # Average severity
+            avg_severity = sum(
+                s.severity for s in result.news_signals
+            ) / len(result.news_signals)
+            st.metric(
+                "Average News Severity",
+                round(avg_severity, 3)
+            )
+
+            # Each signal details
+            for i, signal in enumerate(result.news_signals):
+                with st.expander(
+                    f"Signal {i+1} — "
+                    f"Severity: {signal.severity} — "
+                    f"Category: {signal.category}"
+                ):
+                    # Source info
+                    if signal.source_file:
+                        source_text = f"📄 {signal.source_file}"
+                        if signal.page_number:
+                            source_text += (
+                                f" (Page {signal.page_number})"
+                            )
+                        st.caption(source_text)
+
+                    # Company, location, date
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.write(
+                            "🏢 Company:",
+                            signal.company or "Not detected"
+                        )
+                    with col2:
+                        st.write(
+                            "📍 Location:",
+                            signal.location or "Not detected"
+                        )
+                    with col3:
+                        st.write(
+                            "📅 Date:",
+                            signal.event_date or "Not detected"
+                        )
+
+                    # Signal metadata
+                    st.caption(
+                        f"Signal type: "
+                        f"{signal.signal_type or 'unknown'} | "
+                        f"Source type: "
+                        f"{signal.source_type or 'unknown'} | "
+                        f"Distance: "
+                        f"{signal.retrieval_distance or 'N/A'}"
+                    )
+
+                    # Tags
+                    st.write(
+                        "🏷️ Tags:",
+                        ", ".join(signal.signal_tags)
+                    )
+
+                    # Summary
+                    st.write("📝 Summary:")
+                    st.write(signal.summary)
+
+    # ─────────────────────────────────────────────
+    # MITIGATION RECOMMENDATION
+    # ─────────────────────────────────────────────
+    if result.mitigation_action:
+        st.subheader("Mitigation Recommendation")
+        st.write(result.mitigation_action.summary)
+        for rec in result.mitigation_action.recommendations:
+            st.write(f"- {rec}")
+        st.write("Cost delta:", result.mitigation_action.cost_delta)
+
+    # ─────────────────────────────────────────────
+    # AGENT LOGS
+    # ─────────────────────────────────────────────
+>>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
     st.subheader("Agent Logs")
     for log in result.agent_logs:
         st.write(f"- {log}")
 
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
 def main() -> None:
     st.set_page_config(
         page_title="Supply Chain Disruption Predictor",
@@ -136,6 +400,11 @@ def main() -> None:
     else:
         show_scenario_analyzer()
 
+<<<<<<< HEAD
 
 if __name__ == "__main__":
     main()
+=======
+if __name__ == "__main__":
+    main()
+>>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)

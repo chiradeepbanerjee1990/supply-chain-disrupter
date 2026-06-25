@@ -9,3 +9,7 @@ pyyaml>=6,<7
 requests>=2.31,<3
 sentence-transformers>=5,<6
 streamlit>=1.40,<2
+<<<<<<< HEAD
+=======
+torchvision
+>>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
