@@ -1,52 +1,9 @@
-<<<<<<< HEAD
-from typing import Any, Dict, List
-
-=======
-# from typing import Any, Dict, List
-
-# from src.utils.rag_utils import build_rag_corpus_complete, query_chroma_rag
-# from src.agents.state import NewsRiskSignal
-
-
-# def query_news_signals(event_category: str) -> List[Dict[str, Any]]:
-#     query_text = f"Supply chain disruption signals for {event_category} in electronics imports"
-#     results = query_chroma_rag(query_text, n_results=8)
-#     if not results:
-#         try:
-#             build_rag_corpus_complete(flush_existing=True)
-#             results = query_chroma_rag(query_text, n_results=8)
-#         except FileNotFoundError:
-#             return []
-        
-#     parsed: List[Dict[str, Any]] = []
-#     for idx, result in enumerate(results):
-#         parsed.append(
-#             {
-#                 "source_id": f"rag-{idx}",
-#                 "category": event_category,
-#                 "severity": 0.5,    
-#                 "summary": result["text"],
-#                 "signal_tags": [event_category, "supply chain", "electronics"],
-#             }
-#         )
-#     return parsed
-
-
-# def build_news_signals(event_category: str) -> List[NewsRiskSignal]:
-#     raw_signals = query_news_signals(event_category)
-#     return [NewsRiskSignal(**signal) for signal in raw_signals]
-
-
 from typing import Any, Dict, List, Optional
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
+
 from src.utils.rag_utils import build_rag_corpus_complete, query_chroma_rag
 from src.agents.state import NewsRiskSignal
 
 
-<<<<<<< HEAD
-def query_news_signals(event_category: str) -> List[Dict[str, Any]]:
-    query_text = f"Supply chain disruption signals for {event_category} in electronics imports"
-=======
 # ─────────────────────────────────────────────────
 # STEP 1: Build better RAG query
 # ─────────────────────────────────────────────────
@@ -216,10 +173,8 @@ def calculate_severity(
     text content, metadata and context.
     Instead of always returning 0.5!
     """
-    # Start with base severity
     score = 0.3
 
-    # +0.2 if text matches selected disruption type
     category_keywords = {
         "chip shortage": ["chip", "semiconductor", "shortage", "wafer", "foundry"],
         "port closure": ["port", "closure", "closed", "congestion", "vessel"],
@@ -232,12 +187,10 @@ def calculate_severity(
     text_lower = text.lower()
     category_lower = selected_event_category.lower()
 
-    # Check if any keyword from selected category appears in text
     matched_keywords = category_keywords.get(category_lower, [])
     if any(kw in text_lower for kw in matched_keywords):
         score += 0.2
 
-    # +0.2 if strong risk words found
     strong_risk_words = [
         "shutdown", "closure", "critical", "severe",
         "shortage", "sanctions", "export control",
@@ -247,24 +200,18 @@ def calculate_severity(
     if any(word in text_lower for word in strong_risk_words):
         score += 0.2
 
-    # +0.1 if company detected
     if company:
         score += 0.1
-
-    # +0.1 if location detected
     if location:
         score += 0.1
 
-    # +0.1 if source is historical semiconductor event
     source_type = metadata.get("type", "")
     if source_type == "semiconductor_event":
         score += 0.1
 
-    # +0.1 if multiple sources support same risk
     if multiple_sources_support:
         score += 0.1
 
-    # Always cap between 0.0 and 1.0
     return round(min(score, 1.0), 3)
 
 
@@ -277,10 +224,8 @@ def query_news_signals(event_category: str) -> List[Dict[str, Any]]:
     Query ChromaDB with better query and return
     richer signals with dynamic severity.
     """
-    # STEP 1: Use smart query
     query_text = build_rag_query(event_category)
 
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
     results = query_chroma_rag(query_text, n_results=8)
     if not results:
         try:
@@ -288,22 +233,8 @@ def query_news_signals(event_category: str) -> List[Dict[str, Any]]:
             results = query_chroma_rag(query_text, n_results=8)
         except FileNotFoundError:
             return []
-<<<<<<< HEAD
-    parsed: List[Dict[str, Any]] = []
-    for idx, result in enumerate(results):
-        parsed.append(
-            {
-                "source_id": f"rag-{idx}",
-                "category": event_category,
-                "severity": 0.5,
-                "summary": result["text"],
-                "signal_tags": [event_category, "supply chain", "electronics"],
-            }
-        )
-=======
 
     # Check if multiple results support same risk
-    # (if 3+ results found, assume multiple sources)
     multiple_sources = len(results) >= 3
 
     parsed: List[Dict[str, Any]] = []
@@ -353,8 +284,6 @@ def query_news_signals(event_category: str) -> List[Dict[str, Any]]:
             signal_tags.append(f"Date: {event_date}")
 
         # STEP 5: Return richer signal
-        # Using Option A — adding citation inside summary
-        # to keep NewsRiskSignal model unchanged
         parsed.append(
             {
                 "source_id": f"rag-{idx}",
@@ -362,7 +291,6 @@ def query_news_signals(event_category: str) -> List[Dict[str, Any]]:
                 "summary": summary_with_citation,
                 "severity": severity,
                 "signal_tags": signal_tags,
-
                 # NEW separate fields (Milestone 3!)
                 "source_file": source_file,
                 "page_number": page_number if isinstance(page_number, int) else None,
@@ -375,14 +303,9 @@ def query_news_signals(event_category: str) -> List[Dict[str, Any]]:
             }
         )
 
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
     return parsed
 
 
 def build_news_signals(event_category: str) -> List[NewsRiskSignal]:
     raw_signals = query_news_signals(event_category)
-<<<<<<< HEAD
     return [NewsRiskSignal(**signal) for signal in raw_signals]
-=======
-    return [NewsRiskSignal(**signal) for signal in raw_signals]
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)

@@ -94,41 +94,15 @@ def news_event_analysis_agent(state: GlobalState) -> Dict[str, Any]:
     }
 
 
-<<<<<<< HEAD
-=======
-# def weather_risk_monitoring_agent(state: GlobalState) -> Dict[str, Any]:
-#     metadata = state.event_metadata
-#     config = state.config
-#     if metadata is None or config is None:
-#         raise ValueError("Event metadata and config are required for weather monitoring.")
-#     if state.active_record and state.active_record.get("latitude") is not None:
-#         coords = {
-#             "latitude": float(state.active_record["latitude"]),
-#             "longitude": float(state.active_record["longitude"]),
-#         }
-#     else:
-#         coords = get_port_coordinates(config, metadata.affected_port)
-#     payload = fetch_open_meteo(coords["latitude"], coords["longitude"])
-#     severity = compute_weather_severity(payload)
-#     return {
-#         "live_weather_severity": severity,
-#         "agent_logs": state.agent_logs + ["L3: Weather risk assessment completed."],
-#     }
-
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
 def weather_risk_monitoring_agent(state: GlobalState) -> Dict[str, Any]:
     metadata = state.event_metadata
     config = state.config
     if metadata is None or config is None:
-<<<<<<< HEAD
-        raise ValueError("Event metadata and config are required for weather monitoring.")
-=======
         raise ValueError(
             "Event metadata and config required for weather monitoring."
         )
 
     # Get port coordinates
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
     if state.active_record and state.active_record.get("latitude") is not None:
         coords = {
             "latitude": float(state.active_record["latitude"]),
@@ -136,19 +110,6 @@ def weather_risk_monitoring_agent(state: GlobalState) -> Dict[str, Any]:
         }
     else:
         coords = get_port_coordinates(config, metadata.affected_port)
-<<<<<<< HEAD
-    payload = fetch_open_meteo(coords["latitude"], coords["longitude"])
-    severity = compute_weather_severity(payload)
-    return {
-        "live_weather_severity": severity,
-        "agent_logs": state.agent_logs + ["L3: Weather risk assessment completed."],
-    }
-
-
-def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
-    if state.event_metadata is None or state.active_record is None:
-        raise ValueError("Data ingestion and record load are required for risk classification.")
-=======
 
     # Fetch live weather data
     payload = fetch_open_meteo(
@@ -171,7 +132,6 @@ def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
         metadata.disruption_type
     )
 
-    # Better agent log
     log_message = (
         f"L3: Weather risk assessment completed. "
         f"Raw severity: {weather_factors['severity']}, "
@@ -181,7 +141,6 @@ def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
 
     return {
         "live_weather_severity": adjusted_severity,
-        # NEW: Save weather explanation to GlobalState!
         "weather_summary": weather_factors["weather_summary"],
         "weather_factors": {
             "wind_score": weather_factors["wind_score"],
@@ -195,42 +154,10 @@ def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
     }
 
 
-# def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
-#     if state.event_metadata is None or state.active_record is None:
-#         raise ValueError("Data ingestion and record load are required for risk classification.")
-#     risk_inputs = {
-#         "disruption_type": state.event_metadata.disruption_type,
-#         "severity": state.event_metadata.severity,
-#         "weather_severity": state.live_weather_severity or 0.0,
-#         "news_signals": [signal.dict() for signal in state.news_signals],
-#         "chip_risk": float(state.active_record.get("chip_risk", 0.0)),
-#         "supplier_risk": float(state.active_record.get("supplier_risk", 0.0)),
-#     }
-
-#     composite = min(1.0, (risk_inputs["severity"] * 0.4) + (risk_inputs["weather_severity"] * 0.2) + (risk_inputs["chip_risk"] * 0.2) + (risk_inputs["supplier_risk"] * 0.2))
-#     label = "LOW"
-#     if composite >= 0.75:
-#         label = "CRITICAL"
-#     elif composite >= 0.4:
-#         label = "HIGH"
-#     update_risk_label(
-#         state.active_record["event_date"],
-#         state.active_record["port"],
-#         state.active_record["sku"],
-#         composite,
-#         label,
-#     )
-#     return {
-#         "risk_score_composite": round(composite, 3),
-#         "risk_label": label,
-#         "agent_logs": state.agent_logs + ["L4: Risk classification completed."],
-#     }
-
 def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
     if state.event_metadata is None or state.active_record is None:
         raise ValueError("Data ingestion and record load are required for risk classification.")
-    
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
+
     risk_inputs = {
         "disruption_type": state.event_metadata.disruption_type,
         "severity": state.event_metadata.severity,
@@ -240,12 +167,7 @@ def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
         "supplier_risk": float(state.active_record.get("supplier_risk", 0.0)),
     }
 
-<<<<<<< HEAD
-    composite = min(1.0, (risk_inputs["severity"] * 0.4) + (risk_inputs["weather_severity"] * 0.2) + (risk_inputs["chip_risk"] * 0.2) + (risk_inputs["supplier_risk"] * 0.2))
-=======
     # Calculate average news severity from Agent 2
-    # Previously news signals were collected but NEVER used!
-    # Now we include them in composite score calculation
     news_signals = risk_inputs["news_signals"]
     if news_signals:
         avg_news_severity = sum(
@@ -255,9 +177,6 @@ def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
         avg_news_severity = 0.0
 
     # Updated formula — now includes news signal severity!
-    # Old formula:
-    # severity(40%) + weather(20%) + chip(20%) + supplier(20%)
-    # New formula:
     # severity(35%) + weather(20%) + chip(15%) + supplier(15%) + news(15%)
     composite = min(1.0,
         (risk_inputs["severity"] * 0.35) +
@@ -267,16 +186,12 @@ def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
         (avg_news_severity * 0.15)
     )
 
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
     label = "LOW"
     if composite >= 0.75:
         label = "CRITICAL"
     elif composite >= 0.4:
         label = "HIGH"
-<<<<<<< HEAD
-=======
 
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
     update_risk_label(
         state.active_record["event_date"],
         state.active_record["port"],
@@ -284,15 +199,6 @@ def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
         composite,
         label,
     )
-<<<<<<< HEAD
-    return {
-        "risk_score_composite": round(composite, 3),
-        "risk_label": label,
-        "agent_logs": state.agent_logs + ["L4: Risk classification completed."],
-    }
-
-
-=======
 
     return {
         "risk_score_composite": round(composite, 3),
@@ -305,7 +211,7 @@ def risk_classifier_agent(state: GlobalState) -> Dict[str, Any]:
         ],
     }
 
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
+
 def demand_forecasting_agent(state: GlobalState) -> Dict[str, Any]:
     if state.active_record is None:
         raise ValueError("Active record is required for demand forecasting.")

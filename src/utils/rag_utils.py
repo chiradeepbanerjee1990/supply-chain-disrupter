@@ -95,10 +95,7 @@ def _add_document(
         )
         ids.append(_doc_id(source, doc_type, key, index))
 
-<<<<<<< HEAD
 
-=======
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
 def _workbook_documents(
     excel_path: Path,
 ) -> tuple[List[str], List[Dict[str, Any]], List[str], Dict[str, int]]:
@@ -153,11 +150,6 @@ def _workbook_documents(
     for label, frame in grouped:
         label_text = "UNLABELLED" if pd.isna(label) else str(label)
         order_dates = pd.to_datetime(frame["Order_Date"], errors="coerce")
-<<<<<<< HEAD
-=======
-        
-        # Fixed the string builder structure here:
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
         top_regions = ", ".join(
             f"{name} ({count})"
             for name, count in frame["Order_Region"].value_counts().head(5).items()
@@ -166,10 +158,6 @@ def _workbook_documents(
             f"{name} ({count})"
             for name, count in frame["Product_Name"].value_counts().head(5).items()
         )
-<<<<<<< HEAD
-=======
-        
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
         text = (
             f"Electronics disruption profile: {label_text}\n"
             f"Order observations: {len(frame):,}\n"
@@ -260,17 +248,11 @@ def _workbook_documents(
             key=key,
             metadata={
                 "year": int(row["Year"]),
-<<<<<<< HEAD
+                "order_date": str(row["Year"]),
                 "country": str(row["Country"]),
                 "company": str(row["Company"]),
                 "event": event,
-=======
-                "order_date": str(row["Year"]), 
-                "country": str(row["Country"]),
-                "company": str(row["Company"]),
-                "event": event,
-                "Category_Name": event,        
->>>>>>> a0736fc (Milestone 1,2,3: Improved News Agent and Weather Agent)
+                "Category_Name": event,
                 "severity": str(row["Known Severity"]),
             },
         )
