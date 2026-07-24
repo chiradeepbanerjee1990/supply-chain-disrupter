@@ -966,6 +966,46 @@ def fetch_scenario_options() -> List[Dict[str, Any]]:
     return [dict(row) for row in rows]
 
 
+def fetch_scenario_options_for_regions(regions: List[str]) -> List[Dict[str, Any]]:
+    """Like fetch_scenario_options(), but scoped to specific `regions` and
+    additionally allowing the broader 'Electronics' category.
+
+    Used only as a fallback (src.agents.demo_injector._pick_scenario_record)
+    when a demo scenario's hinted region has no options in the strict
+    4-category pool — e.g. West Asia / North Africa, whose only
+    electronics-labeled history sits under 'Electronics' rather than the 4
+    clean categories. Deliberately NOT merged into fetch_scenario_options()
+    itself, which also backs the live Streamlit and pipeline-router
+    scenario pickers — broadening the category filter there would risk
+    surfacing the mislabeled sports/fashion items 'Electronics' is known to
+    contain (see fetch_scenario_options()'s docstring) in user-facing
+    dropdowns, not just this demo-only fallback path.
+    """
+    if not regions:
+        return []
+    placeholders = ",".join("?" for _ in regions)
+    rows = execute_query(
+        f"""
+        SELECT
+            port,
+            sku,
+            MAX(event_date) AS event_date,
+            COUNT(DISTINCT event_date) AS history_points
+        FROM daily_records
+        WHERE port IN ({placeholders})
+          AND sku IS NOT NULL
+          AND category_name IN (
+              'Cameras', 'Computers', 'Consumer Electronics', 'Video Games', 'Electronics'
+          )
+        GROUP BY port, sku
+        HAVING COUNT(DISTINCT event_date) >= 3
+        ORDER BY history_points DESC, port, sku
+        """,
+        tuple(regions),
+    )
+    return [dict(row) for row in rows]
+
+
 # ΓöÇΓöÇ Day 8 read helpers (Screen 1ΓÇô5) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 _HUB_CITIES_ORDER = [
