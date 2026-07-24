@@ -437,6 +437,41 @@ def fetch_recent_composite_scores(days: int) -> List[float]:
     return [row["composite_score"] for row in rows]
 
 
+def fetch_recent_ensemble_signals(days: int) -> List[Tuple[str, str, str]]:
+    """Return (rule_label, distilbert_label, llm_label) triples from recent
+    risk_classifications.full_result_json, for feedback_functions.ensemble_agreement().
+
+    Mirrors the existing full_result_json parsing pattern in
+    fetch_verdict_distribution() (defensive json.loads with a narrow
+    except, `.get(...) or {}` field access). Skips any row missing one of
+    the three labels — DistilBERT is frequently absent in practice (no
+    fine-tuned model configured is the default local setup; see the
+    graceful-degradation table in docs/ARCHITECTURE.md), and a 3-signal
+    agreement comparison isn't meaningful with only 2 signals present.
+    """
+    ensure_risk_classification_table()
+    rows = execute_query(
+        """
+        SELECT full_result_json FROM risk_classifications
+        WHERE full_result_json IS NOT NULL
+          AND run_ts >= datetime('now', ?)
+        """,
+        (f"-{int(days)} days",),
+    )
+    triples: List[Tuple[str, str, str]] = []
+    for row in rows:
+        try:
+            parsed = json.loads(row["full_result_json"])
+        except (json.JSONDecodeError, TypeError):
+            continue
+        rule_label = (parsed.get("rule_signal") or {}).get("escalated_label")
+        distilbert_label = (parsed.get("distilbert_signal") or {}).get("predicted_label")
+        llm_label = (parsed.get("llm_signal") or {}).get("predicted_label")
+        if rule_label and distilbert_label and llm_label:
+            triples.append((rule_label, distilbert_label, llm_label))
+    return triples
+
+
 def fetch_recent_news(
     region: Optional[str] = None, limit: int = 20
 ) -> List[Dict[str, Any]]:

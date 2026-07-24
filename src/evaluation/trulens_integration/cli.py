@@ -9,11 +9,13 @@ import sys
 from typing import Optional, Sequence
 
 from src.evaluation.trulens_integration.config import launch_dashboard
-from src.evaluation.trulens_integration.feedback_functions import risk_score_stability
+from src.evaluation.trulens_integration.feedback_functions import (
+    ensemble_agreement, risk_score_stability,
+)
 from src.evaluation.trulens_integration.wrapper import run_with_trulens
-from src.utils.db_utils import fetch_recent_composite_scores
+from src.utils.db_utils import fetch_recent_composite_scores, fetch_recent_ensemble_signals
 
-_SUPPORTED_METRICS = {"risk_drift"}
+_SUPPORTED_METRICS = {"risk_drift", "ensemble_agreement"}
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -71,10 +73,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if args.metric not in _SUPPORTED_METRICS:
             print(f"Unknown metric '{args.metric}'. Supported: {sorted(_SUPPORTED_METRICS)}")
             return 1
-        scores = fetch_recent_composite_scores(args.days)
-        stability = risk_score_stability(scores)
-        print(f"metric=risk_drift days={args.days} n_runs={len(scores)} stability_score={stability:.3f}")
-        return 0
+        if args.metric == "risk_drift":
+            scores = fetch_recent_composite_scores(args.days)
+            stability = risk_score_stability(scores)
+            print(f"metric=risk_drift days={args.days} n_runs={len(scores)} stability_score={stability:.3f}")
+            return 0
+
+        if args.metric == "ensemble_agreement":
+            triples = fetch_recent_ensemble_signals(args.days)
+            agreement = ensemble_agreement(triples)
+            print(f"metric=ensemble_agreement days={args.days} n_runs={len(triples)} agreement_score={agreement:.3f}")
+            return 0
 
     parser.print_help()
     return 1

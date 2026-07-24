@@ -6,11 +6,12 @@ see wrapper.py's module docstring for why it drives build_agent_graph()
 directly instead of run_pipeline(). GET /status/{run_id} polls the
 in-process result (mirrors src/api/routers/pipeline.py's _RUN_PHASE pattern;
 TruLens runs don't write agent_execution_log so there's no DB-backed status
-to read). GET /metrics reports the one domain feedback function
-(risk_score_stability) that has a persisted historical data source outside
-a single run — see feedback_functions.py's docstring for why the other
-three (ensemble_agreement, node_latency_check, forecast_accuracy) aren't
-surfaced here without a completed run to compute them from.
+to read). GET /metrics reports the domain feedback functions that have a
+persisted historical data source outside a single run — risk_score_stability
+(risk_classifications.composite_score) and ensemble_agreement
+(risk_classifications.full_result_json). node_latency_check and
+forecast_accuracy still aren't surfaced here without a completed run to
+compute them from — see feedback_functions.py's docstring.
 """
 
 from __future__ import annotations
@@ -26,11 +27,12 @@ from pydantic import BaseModel
 from src.agents.demo_injector import build_demo_payload
 from src.api.schemas import DemoScenarioId
 from src.evaluation.trulens_integration.feedback_functions import (
+    ensemble_agreement,
     node_latency_check,
     risk_score_stability,
 )
 from src.evaluation.trulens_integration.wrapper import run_with_trulens
-from src.utils.db_utils import fetch_recent_composite_scores
+from src.utils.db_utils import fetch_recent_composite_scores, fetch_recent_ensemble_signals
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -101,8 +103,11 @@ def get_trulens_status(run_id: str) -> Dict[str, Any]:
 @router.get("/metrics")
 def get_trulens_metrics(days: int = 30) -> Dict[str, Any]:
     scores = fetch_recent_composite_scores(days)
+    ensemble_triples = fetch_recent_ensemble_signals(days)
     return {
         "days": days,
         "n_runs": len(scores),
         "risk_score_stability": round(risk_score_stability(scores), 3),
+        "n_ensemble_runs": len(ensemble_triples),
+        "ensemble_agreement": round(ensemble_agreement(ensemble_triples), 3),
     }

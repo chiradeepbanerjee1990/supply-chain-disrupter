@@ -38,4 +38,6 @@ export interface TruLensMetrics {
   days: number;
   n_runs: number;
   risk_score_stability: number;
+  n_ensemble_runs: number;
+  ensemble_agreement: number;
 }

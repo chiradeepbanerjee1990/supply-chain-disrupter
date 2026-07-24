@@ -156,6 +156,24 @@ export function TabTrulens() {
           <div className="mt-3 text-xs text-muted-foreground">Loading…</div>
         )}
       </section>
+
+      <section className="rounded-panel bg-card border border-border p-4">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Ensemble Agreement (last {metrics?.days ?? 30} days)
+        </div>
+        {metrics ? (
+          <div className="mt-3 flex items-center gap-3">
+            <div className="text-2xl font-semibold text-foreground">{metrics.ensemble_agreement}</div>
+            <div className="text-[11px] text-muted-foreground">
+              Fraction of {metrics.n_ensemble_runs} recent runs where at least 2 of 3 signals
+              (rule / DistilBERT / LLM) agree on the risk tier. Target &gt; 0.66. Runs missing a
+              signal (e.g. DistilBERT unavailable) are excluded.
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 text-xs text-muted-foreground">Loading…</div>
+        )}
+      </section>
     </div>
   );
 }
