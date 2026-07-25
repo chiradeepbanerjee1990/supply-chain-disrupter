@@ -437,6 +437,41 @@ def fetch_recent_composite_scores(days: int) -> List[float]:
     return [row["composite_score"] for row in rows]
 
 
+def fetch_recent_ensemble_signals(days: int) -> List[Tuple[str, str, str]]:
+    """Return (rule_label, distilbert_label, llm_label) triples from recent
+    risk_classifications.full_result_json, for feedback_functions.ensemble_agreement().
+
+    Mirrors the existing full_result_json parsing pattern in
+    fetch_verdict_distribution() (defensive json.loads with a narrow
+    except, `.get(...) or {}` field access). Skips any row missing one of
+    the three labels — DistilBERT is frequently absent in practice (no
+    fine-tuned model configured is the default local setup; see the
+    graceful-degradation table in docs/ARCHITECTURE.md), and a 3-signal
+    agreement comparison isn't meaningful with only 2 signals present.
+    """
+    ensure_risk_classification_table()
+    rows = execute_query(
+        """
+        SELECT full_result_json FROM risk_classifications
+        WHERE full_result_json IS NOT NULL
+          AND run_ts >= datetime('now', ?)
+        """,
+        (f"-{int(days)} days",),
+    )
+    triples: List[Tuple[str, str, str]] = []
+    for row in rows:
+        try:
+            parsed = json.loads(row["full_result_json"])
+        except (json.JSONDecodeError, TypeError):
+            continue
+        rule_label = (parsed.get("rule_signal") or {}).get("escalated_label")
+        distilbert_label = (parsed.get("distilbert_signal") or {}).get("predicted_label")
+        llm_label = (parsed.get("llm_signal") or {}).get("predicted_label")
+        if rule_label and distilbert_label and llm_label:
+            triples.append((rule_label, distilbert_label, llm_label))
+    return triples
+
+
 def fetch_recent_news(
     region: Optional[str] = None, limit: int = 20
 ) -> List[Dict[str, Any]]:
@@ -962,6 +997,46 @@ def fetch_scenario_options() -> List[Dict[str, Any]]:
         HAVING COUNT(DISTINCT event_date) >= 3
         ORDER BY history_points DESC, port, sku
         """
+    )
+    return [dict(row) for row in rows]
+
+
+def fetch_scenario_options_for_regions(regions: List[str]) -> List[Dict[str, Any]]:
+    """Like fetch_scenario_options(), but scoped to specific `regions` and
+    additionally allowing the broader 'Electronics' category.
+
+    Used only as a fallback (src.agents.demo_injector._pick_scenario_record)
+    when a demo scenario's hinted region has no options in the strict
+    4-category pool — e.g. West Asia / North Africa, whose only
+    electronics-labeled history sits under 'Electronics' rather than the 4
+    clean categories. Deliberately NOT merged into fetch_scenario_options()
+    itself, which also backs the live Streamlit and pipeline-router
+    scenario pickers — broadening the category filter there would risk
+    surfacing the mislabeled sports/fashion items 'Electronics' is known to
+    contain (see fetch_scenario_options()'s docstring) in user-facing
+    dropdowns, not just this demo-only fallback path.
+    """
+    if not regions:
+        return []
+    placeholders = ",".join("?" for _ in regions)
+    rows = execute_query(
+        f"""
+        SELECT
+            port,
+            sku,
+            MAX(event_date) AS event_date,
+            COUNT(DISTINCT event_date) AS history_points
+        FROM daily_records
+        WHERE port IN ({placeholders})
+          AND sku IS NOT NULL
+          AND category_name IN (
+              'Cameras', 'Computers', 'Consumer Electronics', 'Video Games', 'Electronics'
+          )
+        GROUP BY port, sku
+        HAVING COUNT(DISTINCT event_date) >= 3
+        ORDER BY history_points DESC, port, sku
+        """,
+        tuple(regions),
     )
     return [dict(row) for row in rows]
 

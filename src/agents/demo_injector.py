@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from src.utils.db_utils import fetch_scenario_options
+from src.utils.db_utils import fetch_scenario_options, fetch_scenario_options_for_regions
 
 DemoScenarioId = str  # "taiwan_earthquake" | "red_sea_crisis" | "guardrail_demo" | "clean_baseline"
 
@@ -71,15 +71,28 @@ SCENARIO_METADATA: Dict[str, Dict[str, Any]] = {
 
 def _pick_scenario_record(scenario_id: str) -> Dict[str, Any]:
     """Pick a (port, sku, event_date) baseline matching the scenario's
-    region hint, falling back to the option with the most Prophet history
-    when no region match exists (e.g. clean_baseline, or a dataset that
-    doesn't cover the hinted region)."""
+    region hint. Three-tier fallback:
+      1. Strict clean-category pool (fetch_scenario_options), region-matched.
+      2. If empty and the scenario has a region hint: retry region-matched,
+         against the broader pool that also allows the 'Electronics'
+         category (fetch_scenario_options_for_regions) — handles regions
+         like West Asia / North Africa whose only electronics-labeled
+         history sits under that broader bucket rather than the 4 clean
+         categories.
+      3. Any region, most Prophet history — last resort, only reached if
+         even the broadened region-matched pool is empty (or the scenario
+         has no region hint at all, e.g. clean_baseline).
+    """
     options = fetch_scenario_options()
     if not options:
         raise RuntimeError("No scenario options — run: python scripts/build_databases.py")
 
     hints = _REGION_HINTS.get(scenario_id, [])
     matches = [row for row in options if row.get("port") in hints] if hints else []
+
+    if not matches and hints:
+        matches = fetch_scenario_options_for_regions(hints)
+
     pool = matches or options
     return max(pool, key=lambda r: r.get("history_points") or 0)
 
