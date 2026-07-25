@@ -453,10 +453,23 @@ def _build_ragas_llm_and_embeddings():
     from ragas.embeddings import LangchainEmbeddingsWrapper
     from ragas.llms import LangchainLLMWrapper
 
+    from src.utils.hf_utils import insecure_ssl_enabled
+
+    http_client_kwargs = {}
+    if insecure_ssl_enabled():
+        import httpx
+
+        http_client_kwargs["http_client"] = httpx.Client(verify=False)
+        http_client_kwargs["http_async_client"] = httpx.AsyncClient(verify=False)
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", DeprecationWarning)
-        llm = LangchainLLMWrapper(ChatOpenAI(model=JUDGE_MODEL, temperature=0.0))
-        embeddings = LangchainEmbeddingsWrapper(OpenAIEmbeddings(model=JUDGE_EMBEDDINGS))
+        llm = LangchainLLMWrapper(
+            ChatOpenAI(model=JUDGE_MODEL, temperature=0.0, **http_client_kwargs)
+        )
+        embeddings = LangchainEmbeddingsWrapper(
+            OpenAIEmbeddings(model=JUDGE_EMBEDDINGS, **http_client_kwargs)
+        )
     return llm, embeddings
 
 

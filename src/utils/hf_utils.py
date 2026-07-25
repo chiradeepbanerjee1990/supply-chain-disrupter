@@ -15,6 +15,22 @@ import os
 from pathlib import Path
 from typing import Any, Dict
 
+
+def _load_project_env() -> None:
+    """Load .env from project root so standalone scripts pick up EMBEDDING_MODEL_PATH /
+    INGEST_INSECURE_SSL even when their import chain never touches openai_utils.py or
+    anthropic_utils.py (the only other two modules that load .env as an import side
+    effect) — e.g. scripts/build_databases.py, which imports only src.rag.utils."""
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    root = Path(__file__).resolve().parents[2]
+    load_dotenv(root / ".env")
+
+
+_load_project_env()
+
 _SSL_CONFIGURED = False
 
 

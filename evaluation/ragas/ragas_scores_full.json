@@ -1,6 +1,6 @@
 {
   "mode": "full",
-  "run_at_utc": "2026-07-03T10:18:14.341249+00:00",
+  "run_at_utc": "2026-07-25T19:41:01.834989+00:00",
   "ragas_version": "0.4.3",
   "judge_model": "gpt-4.1-mini",
   "judge_embeddings": "text-embedding-3-small",
@@ -8,41 +8,69 @@
     "bi_encoder_top_n": 10,
     "rerank_top_k": 3
   },
-  "n_cases_total": 6,
-  "n_cases_evaluated": 6,
+  "n_cases_total": 36,
+  "n_cases_evaluated": 36,
   "n_cases_skipped_no_context": 0,
   "overall": {
-    "faithfulness": 1.0,
-    "answer_relevancy": 0.6861,
-    "context_precision": 0.9722,
+    "faithfulness": 0.9685,
+    "answer_relevancy": 0.7251,
+    "context_precision": 0.9792,
     "context_recall": 1.0,
-    "n_cases": 6
+    "n_cases": 36
   },
   "by_collection": {
     "historical_precedents": {
-      "faithfulness": 1.0,
-      "answer_relevancy": 0.6861,
-      "context_precision": 0.9722,
+      "faithfulness": 0.9848,
+      "answer_relevancy": 0.7255,
+      "context_precision": 0.9848,
       "context_recall": 1.0,
-      "n_cases": 6
+      "n_cases": 11
+    },
+    "export_control_corpus": {
+      "faithfulness": 0.9533,
+      "answer_relevancy": 0.6916,
+      "context_precision": 0.9769,
+      "context_recall": 1.0,
+      "n_cases": 18
+    },
+    "india_sourcing_corpus": {
+      "faithfulness": 0.9821,
+      "answer_relevancy": 0.8107,
+      "context_precision": 0.9762,
+      "context_recall": 1.0,
+      "n_cases": 7
     }
   },
   "by_style": {
     "agent_pattern": {
-      "faithfulness": 1.0,
-      "answer_relevancy": 0.6861,
-      "context_precision": 0.9722,
+      "faithfulness": 0.9576,
+      "answer_relevancy": 0.6744,
+      "context_precision": 0.9924,
       "context_recall": 1.0,
-      "n_cases": 6
+      "n_cases": 22
+    },
+    "natural_question": {
+      "faithfulness": 0.9857,
+      "answer_relevancy": 0.8047,
+      "context_precision": 0.9583,
+      "context_recall": 1.0,
+      "n_cases": 14
     }
   },
   "flagged": [
     {
+      "source_collection": "export_control_corpus",
+      "metric": "answer_relevancy",
+      "score": 0.6916,
+      "target": 0.8,
+      "gap": 0.1084
+    },
+    {
       "source_collection": "historical_precedents",
       "metric": "answer_relevancy",
-      "score": 0.6861,
+      "score": 0.7255,
       "target": 0.8,
-      "gap": 0.1139
+      "gap": 0.0745
     }
   ],
   "per_case": [
@@ -73,11 +101,11 @@
       "source_collection": "historical_precedents",
       "query_style": "agent_pattern",
       "evaluated": true,
-      "faithfulness": 1.0,
-      "answer_relevancy": 0.7225,
+      "faithfulness": 0.8333,
+      "answer_relevancy": 0.5749,
       "context_precision": 0.8333,
       "context_recall": 1.0,
-      "answer": "In 2024, China added antimony to its export control lists. Antimony is used in flame retardants for electronics PCBs, semiconductor dopants, and in lead-acid batteries. China controls approximately 50-60 percent of global antimony production."
+      "answer": "In 2024, China added antimony to its export control lists. Antimony is used in flame retardants for electronics PCBs, semiconductor dopants, and in lead-acid batteries. China controls approximately 50-60 percent of global antimony production. This control could impact the global supply chain for these applications."
     },
     {
       "question": "Apple India manufacturing diversification Foxconn Zhengzhou crisis iPhone production share mitigation",
@@ -85,10 +113,10 @@
       "query_style": "agent_pattern",
       "evaluated": true,
       "faithfulness": 1.0,
-      "answer_relevancy": 0.7031,
+      "answer_relevancy": 0.7032,
       "context_precision": 1.0,
       "context_recall": 1.0,
-      "answer": "Apple responded to the Foxconn Zhengzhou crisis by accelerating its manufacturing diversification strategy in India. This included expanding operations with Foxconn India, Wistron, and Pegatron Chennai plants. As a result, India's share of global iPhone manufacturing increased from under 1% in 2021 to approximately 7% in 2023, and is expected to rise to over 14% by 2024. This move was a direct risk mitigation response to the production disruptions at the Zhengzhou plant, which manufactures about 70% of iPhones globally."
+      "answer": "Apple responded to the Foxconn Zhengzhou crisis by accelerating its manufacturing diversification strategy in India. This included expanding operations with Foxconn India, Wistron, and Pegatron Chennai plants. As a result, India's share of global iPhone manufacturing increased from under 1% in 2021 to approximately 7% in 2023, and is expected to rise to over 14% by 2024. This move was a direct risk mitigation response to the production disruptions caused by the crisis at the Zhengzhou plant, which manufactures about 70% of iPhones globally."
     },
     {
       "question": "ASE Group OSAT Tainan earthquake operations suspension chip packaging safety inspection",
@@ -96,7 +124,7 @@
       "query_style": "agent_pattern",
       "evaluated": true,
       "faithfulness": 1.0,
-      "answer_relevancy": 0.5825,
+      "answer_relevancy": 0.5835,
       "context_precision": 1.0,
       "context_recall": 1.0,
       "answer": "The ASE Group, a major OSAT company, temporarily suspended operations at its facilities in Tainan following a magnitude 6.4 earthquake on February 6, 2016. This suspension was to conduct safety inspections and structural assessments of their facilities."
@@ -107,10 +135,340 @@
       "query_style": "agent_pattern",
       "evaluated": true,
       "faithfulness": 1.0,
-      "answer_relevancy": 0.6434,
+      "answer_relevancy": 0.6422,
       "context_precision": 1.0,
       "context_recall": 1.0,
-      "answer": "The formula for calculating the Foreign Input Reliance (FIR) on semiconductors for a purchasing industry and economy is given as:\n\n\\( FIR_{c,j}^{semi} = \\frac{\\sum_{c'}^{N} Foreign\\ output_{c,j}^{c',semi}}{Gross\\ output_{c,j}} \\).\n\nThis is then averaged by purchasing economy across purchasing industries, weighting by the industries’ gross output:\n\n\\( FIR_{c}^{semi} = \\sum_{j=1}^{7} (FIR_{c,j}^{semi} \\times W_{cj}^{GO}) \\), where \\( W_{cj}^{GO} = \\frac{GO_{cj}}{\\sum_{j'=1}^{7} GO_{cj'}} \\).\n\nThe share of FIR explained by a supplying economy is computed as:\n\n\\( ShareSupp_{c,c'}^{semi} = \\sum_{j=1}^{7} \\left( \\frac{FIR_{c,j}^{c',semi}}{FIR_{c,j}^{semi}} \\times W_{cj}^{GO} \\right) \\)."
+      "answer": "The formula for calculating the Foreign Input Reliance (FIR) on semiconductors for a purchasing industry and economy is given as:\n\n\\( FIR_{c,j}^{semi} = \\frac{\\sum_{c'}^{N} Foreign\\ output_{c,j,c'}^{semi}}{Gross\\ output_{c,j}} \\)\n\nThis is then averaged by purchasing economy across purchasing industries, weighting by the industries’ gross output:\n\n\\( FIR_{c}^{semi} = \\sum_{j=1}^{7} (FIR_{c,j}^{semi} \\times W_{cj}^{GO}) \\)\n\nwhere \\( W_{cj}^{GO} = \\frac{GO_{cj}}{\\sum_{j'=1}^{7} GO_{cj'}} \\).\n\nThe share of FIR explained by a supplying economy is computed as:\n\n\\( ShareSupp_{c,c'}^{semi} = \\sum_{j=1}^{7} \\left( \\frac{FIR_{c,j,c'}^{semi}}{FIR_{c,j}^{semi}} \\times W_{cj}^{GO} \\right) \\)."
+    },
+    {
+      "question": "CHIPS for America Act H.R.7178 semiconductor manufacturing facility investment 2026 Congress",
+      "source_collection": "historical_precedents",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7958,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The CHIPS for America Act, as referenced in the context, establishes investments and incentives for semiconductor manufacturing facility investment through 2026. This information is sourced from Congress.Gov (2020), H.R.7178 - CHIPS for America Act."
+    },
+    {
+      "question": "What event is examined in Carvalho and colleagues' 2020 study on supply chain disruptions published in The Quarterly Journal of Economics?",
+      "source_collection": "historical_precedents",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.5415,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Carvalho and colleagues' 2020 study examines supply chain disruptions caused by the Great East Japan Earthquake, as published in The Quarterly Journal of Economics."
+    },
+    {
+      "question": "Why does weather risk monitoring for Austin as a semiconductor fab hub need to include more than hurricane and flood risk?",
+      "source_collection": "historical_precedents",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8628,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Weather risk monitoring for Austin as a semiconductor fab hub needs to include more than hurricane and flood risk because extreme cold events, such as Storm Uri, can also pose significant threats. These events, although historically considered low-probability for Texas, can disable power infrastructure for extended periods, leading to shutdowns of semiconductor manufacturing. This highlights the need to monitor temperature anomaly forecasts in addition to storm track forecasts. Additionally, the isolation of the Texas ERCOT grid from other US grids exacerbates the vulnerability of Texas fabs to weather-driven grid events, as they cannot import power from neighboring states when generation fails."
+    },
+    {
+      "question": "Why couldn't semiconductor manufacturers rapidly increase capacity to address the chip shortage?",
+      "source_collection": "historical_precedents",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Semiconductor manufacturers couldn't rapidly increase capacity to address the chip shortage because increasing semiconductor manufacturing capacity is a slow and expensive process. Building a new fabrication plant (fab) costs $10-20 billion and takes 2-3 years to complete. Additionally, automotive chips often require legacy nodes, which have limited capacity additions since foundries have been investing in leading-edge nodes instead. These structural features made it difficult to quickly ramp up production to meet the sudden surge in demand."
+    },
+    {
+      "question": "Which capital goods is the core semiconductor value chain highly dependent on?",
+      "source_collection": "historical_precedents",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8111,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The core semiconductor value chain is highly dependent on capital goods such as specialised machinery, software, and intellectual property necessary to design processor architecture. Additionally, it relies on capital equipment like lithography tools, metrology, and inspection equipment."
+    },
+    {
+      "question": "BIS October 2022 interim final rule advanced computing integrated circuits semiconductor manufacturing equipment China export restriction",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.5761,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "On October 7, 2022, the U.S. Bureau of Industry and Security (BIS) issued an interim final rule restricting exports of advanced computing integrated circuits and semiconductor manufacturing equipment to China. This rule also included new controls on U.S. persons supporting Chinese advanced-node integrated circuit development. This was part of a broader strategy to impose export controls targeting China's semiconductor industry."
+    },
+    {
+      "question": "IEA Global Critical Minerals Outlook risk assessment framework energy transition minerals supply geopolitical",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 0.75,
+      "answer_relevancy": 0.8421,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The IEA Global Critical Minerals Outlook includes a risk assessment framework for key energy transition minerals, which assesses risks across four major dimensions: supply risks, geopolitical risks, barriers to respond to supply disruptions, and exposure to environmental, social, and governance (ESG) and climate risks. This framework is designed to address the challenges associated with the supply of critical minerals necessary for the energy transition."
+    },
+    {
+      "question": "MOE grouping BACI product-level HHI concentration threshold imports global exports cutoff",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7814,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The MOE grouping includes Brazil, China, India, Indonesia, Russia, and South Africa. The BACI product-level HHI concentration threshold for imports is set at a country-level imports HHI of at least 0.4, and for global exports, the HHI threshold is set at a minimum cut-off value of 0.2."
+    },
+    {
+      "question": "diversified global value chains supply chain resilience external shocks supplier diversification disruption recovery",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7808,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Diversified global value chains (GVCs) can enhance supply chain resilience to external shocks by utilizing a broader range of commercial partners and markets, which provides more options for coping and recovery from disruptions. This diversification allows for easier changes in suppliers or reconfiguration of supply chain segments, rather than overhauling entire industries. However, reliance on foreign inputs and demand can also increase exposure to external shocks, as the complex and interconnected nature of GVCs can make it difficult to assess vulnerabilities in advance."
+    },
+    {
+      "question": "global value chains diversification resilience foreign input dependence external shock exposure supply chain vulnerability",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7391,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Global value chains (GVCs) have opened new possibilities for diversification and improved resilience by allowing supply chain activities to draw on more varied sets of commercial partners and markets. This diversification can support resilience to both domestic and external shocks by creating a wider range of options for coping and recovery from disruptions. However, increased dependence on foreign inputs and demand through international supply chains can also make national economies more exposed to external shocks. This exposure can be difficult to assess in advance due to the complex and intricate cross-border movements of inputs in supply chains, which can be sensitive to changes in regulation, trade, transport, and communication costs."
+    },
+    {
+      "question": "OECD investment screening data limitations disaggregated EU EEA beneficial ownership National Security Investment Act",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 0.7,
+      "answer_relevancy": 0.7294,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The OECD investment screening data has limitations due to the unavailability of disaggregated data for investors from unspecified EU and EEA countries. This affects the ability to accurately assess the beneficial ownership and national security implications of investments from these regions. Additionally, the data for the United Kingdom excludes domestic investors subject to the National Security Investment Act 2021, and the data for Austria and Japan specifically refers to beneficial ownership. These limitations hinder a comprehensive understanding of investment patterns and their security implications."
+    },
+    {
+      "question": "investment screening supply chain resilience foreign participation defence production restrictions concentration suppliers",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.5774,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Countries have begun to adjust their investment policies to enhance supply chain resilience by using investment screening and similar instruments. This includes considering the concentration of ownership or control by foreign investors in critical supply chains, the presence of alternative suppliers, and the security implications for supply relationships. Restrictions on foreign participation in defence production have historically been in place for similar reasons. Recent legislation in countries like Estonia, Luxembourg, Malta, and Slovakia explicitly considers the supply of critical inputs as a factor in assessing the security risks of transactions."
+    },
+    {
+      "question": "OECD working paper investment screening trends designs policy practice 62 economies COVID-19",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.0,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The OECD working paper titled \"Acquisition- and ownership-related policies to safeguard essential security interests: Current and emerging trends, observed designs, and policy practice in 62 economies\" is referenced in the context. However, specific details about the content of this working paper, particularly in relation to investment screening trends during COVID-19, are not provided in the given context."
+    },
+    {
+      "question": "China export control circumvention Huawei Honor divestiture third-country intermediaries threshold-compliant chip variants",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.5979,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The context describes China's strategies to circumvent U.S. export controls, including Huawei's 2020 divestiture of its Honor smartphone brand to avoid export-control designations. Additionally, China has been sourcing controlled inputs through third-country intermediaries and using modified, threshold-compliant chip variants to work around these controls."
+    },
+    {
+      "question": "OECD digital security risk management principles stakeholder cooperation strategy governance risk assessment security measures",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 0.9091,
+      "answer_relevancy": 0.7938,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The OECD Digital Security Risk Management Principles include a stakeholder cooperation strategy that emphasizes the importance of cooperation among all stakeholders, including across borders. This is part of the general principles outlined in the document. Additionally, the operational principles highlight the need for strategy and governance, continuous risk assessment and treatment, appropriate security measures, and innovation. Leaders and decision-makers are encouraged to integrate digital security risk into their overall risk management strategy and ensure preparedness and continuity plans are in place to ensure resilience."
+    },
+    {
+      "question": "DRC Indonesia export restrictions downstream processing capacity Chinese investors primary products",
+      "source_collection": "export_control_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7564,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Export restrictions by the DRC and Indonesia have led to a shift away from exports of primary products towards domestic downstream processing. This shift has been primarily facilitated by Chinese investors who already controlled significant parts of the downstream processing stages. The downstream impacts were mainly concentrated in the immediate next processing stages."
+    },
+    {
+      "question": "Why are disruptions at the semiconductor production stage likely to have significant short-term negative impacts on many industries?",
+      "source_collection": "export_control_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8874,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Disruptions at the semiconductor production stage are likely to have significant short-term negative impacts on many industries because semiconductors are not easily substituted, and adjusting supply is slow and costly. Increasing manufacturing capacity requires large upfront investments, long lead times, and access to a highly specialized talent pool, which implies slow supply adjustment. Additionally, semiconductor production is concentrated in a narrow set of economies, making the supply chain vulnerable to disruptions in any of these leading economies, which could lead to widespread shortages affecting diverse downstream industries."
+    },
+    {
+      "question": "How did falling costs of long-distance communication and data transfer in the early 1990s affect international supply chains?",
+      "source_collection": "export_control_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9941,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The falling costs of long-distance communication and data transfer in the early 1990s affected international supply chains by creating new business opportunities and boosting productivity through finer specialization at the task or specialized input level. This led to the emergence of international supply chains, which allowed for greater interdependency among national economies and provided opportunities for less developed countries to participate in trade and production of advanced products. Additionally, it supported the development of global value chains, which transformed the global economy by increasing productivity, lowering prices, and offering a greater variety of goods."
+    },
+    {
+      "question": "How do countries with centralised or decentralised approaches to digital security typically compensate for the limitations of their chosen model?",
+      "source_collection": "export_control_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 0.8,
+      "answer_relevancy": 0.8402,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Countries with a centralised approach to digital security typically compensate for the limitations of centralisation through intra-governmental consultations and cooperation. They also maintain a central operational body to support sectoral regulators and ensure holistic situational awareness. On the other hand, countries with a decentralised model generally maintain a central operational body to support sectoral regulators and ensure consistency across sectors. This central body can offer technical advice, issue guidance, and provide Computer Security Incident Response Team (CSIRT) services to help sectoral agencies carry out their mission. Most countries follow a relatively hybrid model to balance the pros and cons of each approach."
+    },
+    {
+      "question": "Which sectors are commonly singled out in national security investment screening policies according to OECD analysis?",
+      "source_collection": "export_control_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.5833,
+      "context_recall": 1.0,
+      "answer": "The context does not provide specific information about which sectors are commonly singled out in national security investment screening policies according to OECD analysis."
+    },
+    {
+      "question": "What distinguishes accepting a risk after careful evaluation from blindly accepting it, and why is risk assessment central to security?",
+      "source_collection": "export_control_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.6968,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "Accepting a risk after careful evaluation involves a systematic assessment of the risk, considering the economic and social realities of the activity at stake, and selecting appropriate security measures that are commensurate with the risk. This contrasts with blindly accepting a risk, which involves accepting it without further consideration or evaluation. Risk assessment is central to security because it helps in making informed decisions about which risks to accept, transfer, avoid, or reduce, ensuring that security measures are aligned with the entity's risk appetite and the objectives of the activity."
+    },
+    {
+      "question": "When was the NAEC workshop on economic aspects of national security held at the OECD?",
+      "source_collection": "export_control_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8992,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The NAEC workshop on economic aspects of national security was held at the OECD on 9 February 2024."
+    },
+    {
+      "question": "What are the main objectives of the European Chips Act that came into force in September 2023?",
+      "source_collection": "export_control_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9563,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The main objectives of the European Chips Act, which came into force in September 2023, are to foster semiconductor production in the European Union, reduce external dependencies, and double the EU’s global market share to 20% by 2030. The act is structured around three pillars: the \"Chips for Europe\" initiative to support research, development, and innovation; improving supply security by attracting large-scale investments in production capacities; and setting up a coordination mechanism between member states and the Commission to monitor market developments and anticipate crises."
+    },
+    {
+      "question": "CG Power Renesas Stars Microelectronics OSAT tripartite joint venture Sanand Gujarat semiconductor",
+      "source_collection": "india_sourcing_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 0.875,
+      "answer_relevancy": 0.6861,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The tripartite joint venture in Sanand, Gujarat involves CG Power and Industrial Solutions Limited (India), Renesas Electronics Corporation (Japan), and Stars Microelectronics Public Company Limited (Thailand). They are establishing an OSAT (Outsourced Semiconductor Assembly and Test) facility focused on packaging and testing automotive-grade and industrial-grade microcontrollers and power semiconductors."
+    },
+    {
+      "question": "Tata Electronics PSMC joint venture Dholera 28nm wafer fabrication plant CCEA approval",
+      "source_collection": "india_sourcing_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7225,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The CCEA approved Tata Electronics' joint venture with Taiwan's PSMC for India's first silicon semiconductor wafer fabrication plant, which will be located in the Dholera Special Investment Region. The approval was granted on February 29, 2024, for a 28nm technology node, Phase 1 facility."
+    },
+    {
+      "question": "PLI scheme 14 sectors cumulative performance December 2025 investment sales exports jobs incentives disbursed",
+      "source_collection": "india_sourcing_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7754,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "As of December 31, 2025, across all 14 PLI sectors combined, the cumulative performance included 836 approved applications, investment exceeding ₹2.16 lakh crore, sales exceeding ₹20.41 lakh crore, exports exceeding ₹8.3 lakh crore, more than 14.39 lakh direct and indirect jobs, and ₹28,748 crore in incentives disbursed."
+    },
+    {
+      "question": "ISM design-linked incentive DLI fabless chip design deployment incentive EDA tools prototype runs",
+      "source_collection": "india_sourcing_corpus",
+      "query_style": "agent_pattern",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7147,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The ISM Design-Linked Incentive (DLI) scheme provides a deployment-linked financial incentive and access to design infrastructure, including EDA tools and prototype runs, for Indian chip design companies. This is aimed at developing products for both Indian and global markets and building India's indigenous design capability."
+    },
+    {
+      "question": "How much fiscal support does the SEMICON India Programme provide for semiconductor and display fabs, and what is the programme's total incentive outlay?",
+      "source_collection": "india_sourcing_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9325,
+      "context_precision": 0.8333,
+      "context_recall": 1.0,
+      "answer": "The SEMICON India Programme provides fiscal support of up to 50% of the project cost for semiconductor and display fabs. The programme's total incentive outlay is ₹76,000 crore."
+    },
+    {
+      "question": "How many semiconductor design startups had the Design-Linked Incentive scheme supported as of January 2026, and how much venture capital funding did they attract?",
+      "source_collection": "india_sourcing_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9461,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "As of January 2026, the Design-Linked Incentive scheme had supported 24 semiconductor design startups, which collectively attracted roughly ₹430 crore in venture capital funding."
+    },
+    {
+      "question": "How much venture capital funding did the semiconductor design startups collectively attract, and how many tape-outs resulted from the national EDA platform usage?",
+      "source_collection": "india_sourcing_corpus",
+      "query_style": "natural_question",
+      "evaluated": true,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8976,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "answer": "The semiconductor design startups collectively attracted roughly ₹430 crore in venture capital funding. The national EDA platform usage resulted in 16 startup tape-outs."
     }
   ]
 }

@@ -26,7 +26,16 @@ data/trulens
 
 # Not needed inside the API image
 fine_tuning
-evaluation
 tests
 docs
 Handoff
+
+# evaluation/ is NOT fully excluded: evaluation/ragas/*.json are committed,
+# static RAGAS score files that src/rag/utils.py reads at runtime for
+# /api/rag/scorecard + /api/rag/gold-dataset (RAGAS_SCORES_PATH /
+# RAGAS_GOLD_DATASET_PATH). Only exclude the offline evaluation scripts and
+# their cache, which the API never runs.
+evaluation/*.py
+evaluation/qa_*.py
+evaluation/ragas/__pycache__
+evaluation/ragas/*.py
