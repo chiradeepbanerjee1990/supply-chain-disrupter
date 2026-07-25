@@ -57,3 +57,14 @@ def test_query_command_prints_risk_drift_score():
 def test_query_command_rejects_unknown_metric():
     exit_code = main(["query", "--metric", "not_a_real_metric", "--days", "30"])
     assert exit_code != 0
+
+
+def test_query_command_prints_ensemble_agreement_score():
+    with patch(
+        "src.evaluation.trulens_integration.cli.fetch_recent_ensemble_signals",
+        return_value=[("HIGH", "HIGH", "HIGH"), ("LOW", "MEDIUM", "LOW")],
+    ) as mock_fetch:
+        exit_code = main(["query", "--metric", "ensemble_agreement", "--days", "14"])
+
+    assert exit_code == 0
+    mock_fetch.assert_called_once_with(14)

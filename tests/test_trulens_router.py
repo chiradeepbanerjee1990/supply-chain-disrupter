@@ -90,3 +90,19 @@ def test_metrics_reads_recent_composite_scores(monkeypatch):
     assert body["days"] == 7
     assert body["n_runs"] == 3
     assert 0.0 <= body["risk_score_stability"] <= 1.0
+
+
+def test_metrics_reads_recent_ensemble_signals(monkeypatch):
+    monkeypatch.setattr(
+        "src.api.routers.trulens.fetch_recent_composite_scores",
+        lambda days: [0.5, 0.55, 0.52],
+    )
+    monkeypatch.setattr(
+        "src.api.routers.trulens.fetch_recent_ensemble_signals",
+        lambda days: [("HIGH", "HIGH", "HIGH"), ("LOW", "MEDIUM", "LOW")],
+    )
+    resp = client.get("/api/trulens/metrics?days=7")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["n_ensemble_runs"] == 2
+    assert 0.0 <= body["ensemble_agreement"] <= 1.0

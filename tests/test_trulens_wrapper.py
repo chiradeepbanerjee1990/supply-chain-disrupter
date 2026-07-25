@@ -1,3 +1,4 @@
+import sqlite3
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -11,6 +12,17 @@ from src.evaluation.trulens_integration.openai_patch import LLMCallRecord
 from src.evaluation.trulens_integration.wrapper import (
     _aggregate_llm_cost, _pipeline_body, run_with_trulens,
 )
+
+# Several tests below call run_with_trulens() through the REAL
+# TruApp/@instrument recording path (only build_agent_graph is mocked), by
+# design — that's how test_run_with_trulens_records_a_real_trulens_event and
+# friends prove recording actually works. This is safe against the real
+# data/trulens/trulens.db because tests/conftest.py's session-scoped
+# _isolate_trulens_from_real_database fixture redirects the *first-ever*
+# TruSession created in this pytest process to an isolated file — see that
+# fixture's docstring for why per-test-file isolation isn't sufficient
+# (OpenTelemetry's global TracerProvider binds once per process, not once
+# per TruSession instance).
 
 
 class _FakeCompiledGraph:
@@ -134,6 +146,35 @@ def test_run_with_trulens_records_a_real_trulens_event():
     finally:
         conn.close()
     assert count > 0
+
+
+def test_run_with_trulens_does_not_write_to_the_real_project_database():
+    # Regression test for the junk-record issue: confirms _isolated_trulens_
+    # session actually redirects writes away from data/trulens/trulens.db,
+    # not just that _some_ isolated file receives them.
+    real_db_path = Path("data/trulens/trulens.db")
+    real_count_before = 0
+    if real_db_path.exists():
+        conn = sqlite3.connect(real_db_path)
+        real_count_before = conn.execute("SELECT COUNT(*) FROM trulens_events").fetchone()[0]
+        conn.close()
+
+    with patch(
+        "src.evaluation.trulens_integration.wrapper.build_agent_graph",
+        return_value=_FakeCompiledGraph(),
+    ):
+        run_with_trulens({"sku": "CHIP_AP", "event_date": "2024-04-03", "run_id": "isolation-proof-test"})
+
+    from src.evaluation.trulens_integration.config import get_session
+    get_session().force_flush()
+
+    real_count_after = 0
+    if real_db_path.exists():
+        conn = sqlite3.connect(real_db_path)
+        real_count_after = conn.execute("SELECT COUNT(*) FROM trulens_events").fetchone()[0]
+        conn.close()
+
+    assert real_count_after == real_count_before
 
 
 def _llm_call(input_tokens, output_tokens, cost_usd, model="gpt-4o"):
