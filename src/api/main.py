@@ -1,4 +1,6 @@
 import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -6,6 +8,20 @@ from src.api.routers import (
     pipeline, live_feed, risk, forecast, simulation, mitigation, observability, guardrails, rag, admin,
     trulens,
 )
+from src.utils.db_utils import ensure_schema, ensure_sku_id_columns
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Without this, agent_execution_log/etc. only exist once some pipeline
+    # run has called ensure_schema() (langgraph_engine.py) — fine locally
+    # where outputs/supply_chain.db persists across restarts, but a fresh
+    # container (e.g. Railway) 500s on the very first GET /api/pipeline/status
+    # poll, before any run has ever happened.
+    ensure_schema()
+    ensure_sku_id_columns()
+    yield
+
 
 app = FastAPI(
     title="Supply Chain Command Center API",
@@ -14,6 +30,7 @@ app = FastAPI(
                  "Day 1: every endpoint below returns fixture JSON matching the final schema. "
                  "Day 8 replaces fixtures.py reads with real SQLite/ChromaDB reads — "
                  "no route signatures change.",
+    lifespan=lifespan,
 )
 
 _origins = os.getenv("FRONTEND_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
