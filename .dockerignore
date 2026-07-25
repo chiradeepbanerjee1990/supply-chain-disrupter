@@ -1,0 +1,32 @@
+# Frontend dev tooling — the API image never serves the React app directly.
+src/frontend/node_modules
+src/frontend/dist
+
+# Python cruft
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Generated/local-only — outputs/ is rebuilt by RUN python scripts/build_databases.py
+outputs
+data/processed
+data/*.db
+data/trulens
+
+# VCS / IDE / env
+.git
+.gitignore
+.venv
+.claude
+*.local
+
+# Not needed inside the API image
+fine_tuning
+evaluation
+tests
+docs
+Handoff
