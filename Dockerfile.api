@@ -19,7 +19,16 @@ COPY config/ ./config/
 # outputs/supply_chain.db and outputs/chromadb/ are gitignored (generated,
 # not source) — bake them into the image here so a fresh container has
 # real data instead of 500ing the first time any DB-backed route is hit.
-RUN python scripts/build_databases.py
+#
+# Two separate ChromaDB builds, both required: build_databases.py only
+# populates the legacy monolithic `electronics_supply_chain_knowledge`
+# collection (src/rag/utils.py) — it does NOT touch the named collections
+# (historical_precedents / export_control_corpus / india_sourcing_corpus,
+# src/rag/collections.py) that L2/L3/L4/L7 actually query at runtime. Without
+# this second command, every agent's RAG lookups silently return empty
+# context in the deployed container (build_rag_context() swallows the
+# failure, so it never crashes — it just quietly has no citations).
+RUN python scripts/build_databases.py && python scripts/build_rag_collections.py --flush
 
 EXPOSE 8173
 CMD uvicorn src.api.main:app --host 0.0.0.0 --port ${PORT:-8173}

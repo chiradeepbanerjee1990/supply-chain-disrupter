@@ -11,7 +11,6 @@ from functools import lru_cache
 from pathlib import Path
 
 from trulens.core import TruSession
-from trulens.dashboard import run_dashboard
 
 DB_PATH = Path("data/trulens/trulens.db")
 
@@ -24,5 +23,15 @@ def get_session() -> TruSession:
 
 
 def launch_dashboard(port: int = 8502) -> None:
-    """Launch the TruLens Streamlit dashboard as its own process on `port`."""
+    """Launch the TruLens Streamlit dashboard as its own process on `port`.
+
+    Imports trulens.dashboard lazily — it transitively pulls in Streamlit,
+    matplotlib, and Jupyter, none of which the FastAPI service needs. Every
+    other caller in this package only needs get_session(), so keeping this
+    import inside the function body means importing this module (or the
+    package's __init__.py, which imports launch_dashboard by name) never
+    drags that weight into the API container.
+    """
+    from trulens.dashboard import run_dashboard
+
     run_dashboard(get_session(), port=port)

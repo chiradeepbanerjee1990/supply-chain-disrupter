@@ -10,6 +10,14 @@
 # Keep this list in sync with requirements.txt when adding a new API-side
 # dependency.
 #
+# trulens-dashboard is deliberately excluded too: it transitively pulls in
+# Streamlit, matplotlib, and Jupyter/JupyterLab/notebook (a huge chunk of
+# image weight) purely to launch TruLens's own standalone dashboard UI. The
+# API only calls get_session()/run_with_trulens() (trulens-core/-feedback/
+# -providers-openai) — launch_dashboard() now lazy-imports trulens.dashboard
+# so it's never even reachable from the API's import graph. If you actually
+# need the TruLens dashboard, run it locally with the full requirements.txt.
+#
 # torch is intentionally NOT listed here — Dockerfile.api installs it
 # separately from the PyTorch CPU-only wheel index first, since plain
 # `pip install torch` on Linux pulls a CUDA-bundled wheel (+ nvidia-cublas/
@@ -39,6 +47,5 @@ uvicorn[standard]>=0.32.0
 langfuse>=2.36.0
 langgraph>=1.2,<2
 trulens-core>=2.8,<3
-trulens-dashboard>=2.8,<3
 trulens-feedback>=2.8,<3
 trulens-providers-openai>=2.8,<3

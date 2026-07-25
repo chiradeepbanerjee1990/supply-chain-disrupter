@@ -1866,6 +1866,11 @@ def fetch_verdict_distribution() -> List[Dict[str, Any]]:
     """COUNT verdict_type from risk_classifications.full_result_json (Screen 5).
 
     Parses judge_verdict.verdict_type; legacy rows without JSON bucket as no_judge."""
+    # ensure_schema() does NOT create risk_classifications — see the same note
+    # on fetch_cost_by_run() above. Without this, a fresh DB with zero pipeline
+    # runs crashes this endpoint with "no such table: risk_classifications"
+    # instead of returning an empty distribution.
+    ensure_risk_classification_table()
     rows = execute_query(
         "SELECT full_result_json FROM risk_classifications WHERE full_result_json IS NOT NULL"
     )
