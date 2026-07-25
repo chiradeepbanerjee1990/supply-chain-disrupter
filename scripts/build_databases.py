@@ -27,23 +27,36 @@ def main() -> None:
     print(f"SQLite: loaded {inserted:,} Lite Master orders")
     print(json.dumps(get_sqlite_stats(), indent=2))
 
-    chroma_summary = build_rag_corpus_complete(
-        flush_existing=not args.no_rebuild
-    )
-    print("ChromaDB:")
-    print(json.dumps(chroma_summary, indent=2))
+    # ChromaDB/RAG is best-effort here: both the primary and fallback
+    # embedding models require reaching Hugging Face Hub, and a total outage
+    # (network down, HF Hub down, corporate SSL interception) must not crash
+    # the whole build — SQLite already succeeded above and is the part the
+    # rest of the pipeline hard-depends on. A missing RAG corpus degrades the
+    # same way build_rag_context() already does at runtime (empty results),
+    # rather than failing the entire `docker build`.
+    try:
+        chroma_summary = build_rag_corpus_complete(
+            flush_existing=not args.no_rebuild
+        )
+        print("ChromaDB:")
+        print(json.dumps(chroma_summary, indent=2))
 
-    smoke_queries = [
-        "semiconductor factory shutdown and chip shortage risk",
-        "critical electronics supply disruption mitigation",
-        "what field contains safety stock and lead time",
-        "Red Sea route disruption shipping risk",
-        "semiconductor production vulnerabilities and geographic concentration",
-    ]
-    for query in smoke_queries:
-        hits = query_chroma_rag(query, n_results=1)
-        title = hits[0]["metadata"].get("type") if hits else "NO HIT"
-        print(f"RAG smoke test: {query!r} -> {title}")
+        smoke_queries = [
+            "semiconductor factory shutdown and chip shortage risk",
+            "critical electronics supply disruption mitigation",
+            "what field contains safety stock and lead time",
+            "Red Sea route disruption shipping risk",
+            "semiconductor production vulnerabilities and geographic concentration",
+        ]
+        for query in smoke_queries:
+            hits = query_chroma_rag(query, n_results=1)
+            title = hits[0]["metadata"].get("type") if hits else "NO HIT"
+            print(f"RAG smoke test: {query!r} -> {title}")
+    except Exception as exc:
+        print(
+            f"ChromaDB/RAG corpus build failed (non-fatal — SQLite build above "
+            f"already succeeded): {exc}"
+        )
 
 
 if __name__ == "__main__":

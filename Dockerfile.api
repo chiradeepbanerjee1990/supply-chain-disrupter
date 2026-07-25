@@ -1,7 +1,16 @@
 FROM python:3.11-slim
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# torch first, from the CPU-only wheel index — plain `pip install torch` on
+# Linux pulls a CUDA-bundled wheel (+ nvidia-cublas/cudnn/etc, several GB)
+# even though this service is CPU-only inference; installing it here first
+# means the later `-r requirements-api.txt` (which needs torch transitively
+# via transformers/sentence-transformers) finds the constraint already
+# satisfied and doesn't pull the CUDA build.
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
+COPY requirements-api.txt .
+RUN pip install --no-cache-dir -r requirements-api.txt
 COPY src/ ./src/
 COPY scripts/ ./scripts/
 COPY data/raw/ ./data/raw/

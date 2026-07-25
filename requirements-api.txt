@@ -1,0 +1,44 @@
+# Runtime dependencies for the FastAPI backend (Dockerfile.api) only.
+#
+# This is a trimmed subset of requirements.txt: verified (grep across
+# src/api, src/agents, src/utils, src/rag, src/evaluation, src/mcp_servers)
+# that streamlit, matplotlib, seaborn, nixtla, datasets, ragas, accelerate,
+# and langchain-openai are never imported by anything the FastAPI app's
+# import graph reaches — they're only used by the Streamlit dashboard
+# (src/dashboard/, src/main.py) and the offline evaluation/ragas/ and
+# fine_tuning/ scripts, neither of which ship in the API container.
+# Keep this list in sync with requirements.txt when adding a new API-side
+# dependency.
+#
+# torch is intentionally NOT listed here — Dockerfile.api installs it
+# separately from the PyTorch CPU-only wheel index first, since plain
+# `pip install torch` on Linux pulls a CUDA-bundled wheel (+ nvidia-cublas/
+# cudnn/etc, several GB) even though this service never touches a GPU.
+
+chromadb>=1.5,<2
+feedparser>=6,<7
+openpyxl>=3.1,<4
+pandas>=2.2,<4
+prophet>=1.1,<2
+pydantic>=2.7,<3
+pypdf>=6,<7
+python-docx>=1.2,<2
+pyyaml>=6,<7
+requests>=2.31,<3
+sentence-transformers>=5.5.1,<6
+statsmodels>=0.14,<1
+yfinance>=0.2,<2
+mcp>=1.0,<2
+openai>=1.55.0
+python-dotenv>=1.0,<2
+tenacity>=8.2.0
+transformers>=4.40.0
+scikit-learn>=1.3.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+langfuse>=2.36.0
+langgraph>=1.2,<2
+trulens-core>=2.8,<3
+trulens-dashboard>=2.8,<3
+trulens-feedback>=2.8,<3
+trulens-providers-openai>=2.8,<3
