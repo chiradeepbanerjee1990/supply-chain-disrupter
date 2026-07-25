@@ -16,6 +16,20 @@ COPY scripts/ ./scripts/
 COPY data/raw/ ./data/raw/
 COPY config/ ./config/
 
+# Committed, static RAGAS score files (src/rag/utils.py's RAGAS_SCORES_PATH /
+# RAGAS_GOLD_DATASET_PATH) — read by /api/rag/scorecard and
+# /api/rag/gold-dataset. Without this, those endpoints silently fall back to
+# Day-1 fixture data instead of the real evaluated scores.
+COPY evaluation/ragas/*.json ./evaluation/ragas/
+
+# Committed, static pre-generated L5 forecast JSONs (capstone batch outputs,
+# src/api/routers/forecast.py's _FORECAST_OUTPUTS_DIR) — the fallback path
+# for /api/forecast/sku/list and /api/forecast/sku/{sku_id} when the
+# demand_forecasts DB table is still empty (i.e. before any live pipeline
+# run has persisted a forecast). Without this, the SKU forecast dropdown is
+# empty and every per-SKU lookup 404s on a fresh deploy.
+COPY data/forecast_outputs/ ./data/forecast_outputs/
+
 # outputs/supply_chain.db and outputs/chromadb/ are gitignored (generated,
 # not source) — bake them into the image here so a fresh container has
 # real data instead of 500ing the first time any DB-backed route is hit.
