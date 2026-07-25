@@ -2,13 +2,21 @@
 #
 # This is a trimmed subset of requirements.txt: verified (grep across
 # src/api, src/agents, src/utils, src/rag, src/evaluation, src/mcp_servers)
-# that streamlit, matplotlib, seaborn, nixtla, datasets, ragas, accelerate,
-# and langchain-openai are never imported by anything the FastAPI app's
-# import graph reaches — they're only used by the Streamlit dashboard
+# that streamlit, matplotlib, seaborn, datasets, ragas, accelerate, and
+# langchain-openai are never imported by anything the FastAPI app's import
+# graph reaches — they're only used by the Streamlit dashboard
 # (src/dashboard/, src/main.py) and the offline evaluation/ragas/ and
 # fine_tuning/ scripts, neither of which ship in the API container.
 # Keep this list in sync with requirements.txt when adding a new API-side
 # dependency.
+#
+# nixtla IS imported by src/agents/forecast/agent.py (optional TimeGPT
+# candidate model, tried inside a try/except and gracefully skipped/logged
+# if unavailable — see EMBEDDING_MODEL_PATH-style fallbacks elsewhere in this
+# codebase). It's a thin client for Nixtla's hosted TimeGPT API (no local
+# model weights), so keeping it has negligible image-size impact. Requires
+# NIXTLA_API_KEY set in the environment to actually reach the service —
+# without it, TimeGPT still gracefully falls back to Prophet/SARIMAX.
 #
 # trulens-dashboard is deliberately excluded too: it transitively pulls in
 # Streamlit, matplotlib, and Jupyter/JupyterLab/notebook (a huge chunk of
@@ -36,6 +44,7 @@ requests>=2.31,<3
 sentence-transformers>=5.5.1,<6
 statsmodels>=0.14,<1
 yfinance>=0.2,<2
+nixtla>=0.6,<1
 mcp>=1.0,<2
 openai>=1.55.0
 python-dotenv>=1.0,<2
