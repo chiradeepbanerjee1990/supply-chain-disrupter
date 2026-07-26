@@ -30,6 +30,14 @@ const TOOLTIP_STYLE = {
   color: "#94A3B8",
 };
 
+/** Format USD for Monte Carlo tiles — avoid showing $0.0M for mid four-figure risks. */
+function formatUsdRisk(value: number): string {
+  const abs = Math.abs(value);
+  if (abs >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
+  return `$${value.toFixed(0)}`;
+}
+
 interface ForecastPoint { day: string; baseline: number; adjusted: number }
 interface ForecastResponse {
   run_id: string;
@@ -555,9 +563,9 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
             </div>
             <div className="grid grid-cols-3 gap-2 mb-3">
               {[
-                { label: "P10 Stockout", v: `${simulation.p10}%` },
-                { label: "P50 Stockout", v: `${simulation.p50}%` },
-                { label: "P90 Stockout", v: `${simulation.p90}%` },
+                { label: "P10 Unmet Demand", v: `${simulation.p10}%` },
+                { label: "P50 Unmet Demand", v: `${simulation.p50}%` },
+                { label: "P90 Unmet Demand", v: `${simulation.p90}%` },
               ].map((m) => (
                 <div key={m.label} className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
                   <div className="text-xl font-mono font-bold text-slate-100">{m.v}</div>
@@ -592,7 +600,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                   { label: "Revenue at Risk P90", v: simulation.revenue_at_risk_p90_usd },
                 ].map((m) => (
                   <div key={m.label} className="rounded p-3 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                    <div className="text-lg font-mono font-bold text-orange-400">${(m.v / 1_000_000).toFixed(1)}M</div>
+                    <div className="text-lg font-mono font-bold text-orange-400">{formatUsdRisk(m.v)}</div>
                     <div className="text-[9px] text-slate-600 mt-0.5">{m.label}</div>
                   </div>
                 ))}
@@ -601,7 +609,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
               <div className="rounded p-3 mt-3" style={{ background: BG, border: `1px solid ${BORDER}` }}>
                 <div className="text-[10px] text-slate-600 mb-0.5">Revenue at Risk (P50)</div>
                 <div className="text-xl font-mono font-bold text-orange-400">
-                  ${(simulation.revenue_at_risk_usd / 1_000_000).toFixed(1)}M
+                  {formatUsdRisk(simulation.revenue_at_risk_usd)}
                 </div>
               </div>
             )}

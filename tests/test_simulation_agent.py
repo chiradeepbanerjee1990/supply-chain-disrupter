@@ -113,6 +113,25 @@ def test_l5_forecast_shifts_revenue_distribution():
   assert r_no_forecast.revenue_impact_usd_p50 >= r_forecast.revenue_impact_usd_p50
 
 
+def test_stockout_percentiles_are_ordered():
+  """P10/P50/P90 must come from the same unmet-demand distribution."""
+  result = run_monte_carlo(
+      _base_params(
+          initial_inventory=80.0,
+          incoming_supply=40.0,
+          mean_daily_demand=50.0,
+          severity=0.7,
+          shock_duration_days=10,
+          seed=21,
+          trials=600,
+      )
+  )
+  assert result.stockout_probability_p10 is not None
+  assert result.stockout_probability_p90 is not None
+  assert result.stockout_probability_p10 <= result.stockout_probability_pct
+  assert result.stockout_probability_pct <= result.stockout_probability_p90
+
+
 def test_resolve_alternate_route_by_region():
   config = {"region_route_maps": {"Eastern Asia": {"backup_route": "Suez Canal"}}}
   route = resolve_alternate_route(config, {"port": "Eastern Asia", "order_region": "Eastern Asia"})
@@ -172,6 +191,43 @@ def test_build_simulation_params_from_state():
     params = build_simulation_params(state, trials=100, seed=1)
   assert params.alternate_route == "Suez Canal"
   assert len(params.forecast_daily_demands) == 30
+  assert params.forecast_daily_demands[0] == 45.0
+
+
+def test_weekly_l5_forecast_expanded_to_daily_rates():
+    """L5 weekly demand_disrupted must become daily (÷7), not one huge day."""
+    weekly = [199.34, 208.69, 206.49, 207.01, 206.89]
+    state = _risk_state(
+        severity=0.0,
+        shock_duration_days=0,
+        recovery_window_days=90,
+        disruption_type="none",
+        composite_score=0.0,
+        active_record={
+            "inventory_level": 17.5,
+            "incoming_supply": 1.0,
+            "demand": 1.0,
+            "unit_price_usd": 1808.0,
+            "lead_time_days": 7.0,
+        },
+        forecast_result=ForecastResult(
+            prophet_forecast=[
+                {"week_start": f"2025-03-{i*7+3:02d}", "demand_baseline": v, "demand_disrupted": v}
+                for i, v in enumerate(weekly)
+            ],
+            expected_drop_pct=0.0,
+        ),
+    )
+    with patch("src.agents.simulation_agent.priors.fetch_ops_kpi_priors", return_value=None):
+        params = build_simulation_params(state, trials=400, seed=42)
+    # Scaled to active-record demand (1.0), preserving weekly shape ratios.
+    assert abs(params.forecast_daily_demands[0] - 1.0 * (weekly[0] / (sum(weekly) / len(weekly)))) < 0.05
+    assert abs(params.mean_daily_demand - 1.0) < 1e-9
+    assert max(params.forecast_daily_demands) < 5.0  # not raw weekly ~200
+    result = run_monte_carlo(params)
+    # Calm run must not report near-certain stockout / multi-million $ impact.
+    assert result.stockout_probability_pct < 50.0
+    assert (result.revenue_impact_usd_p50 or 0.0) < 1_000_000.0
 
 
 def test_simulation_trials_from_event_metadata():

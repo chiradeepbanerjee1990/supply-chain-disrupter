@@ -109,16 +109,51 @@ def resolve_alternate_route(config: Dict[str, Any], record: Dict[str, Any]) -> s
     return legacy or DEFAULT_BACKUP_ROUTE
 
 
+def _is_weekly_forecast_points(points: List[Dict[str, Any]]) -> bool:
+    """L5 emits 5 weekly points; legacy stubs emit daily yhat series."""
+    if not points:
+        return False
+    sample = points[0]
+    if "week_start" in sample:
+        return True
+    # Real L5 v3 points use demand_disrupted without yhat and are short (≈5 weeks).
+    if "demand_disrupted" in sample and "yhat" not in sample and len(points) <= 12:
+        return True
+    return False
+
+
 def _build_forecast_demands(state: GlobalState, horizon_days: int, fallback: float) -> List[float]:
     if not state.forecast_result or not state.forecast_result.prophet_forecast:
         return []
+    points = state.forecast_result.prophet_forecast
     demands: List[float] = []
-    for point in state.forecast_result.prophet_forecast[:horizon_days]:
-        # Real L5 output (DemandForecastingAgent v3) uses "demand_disrupted";
-        # "yhat" is kept as a fallback for the legacy stub shape some tests
-        # still construct directly.
-        value = point.get("demand_disrupted", point.get("yhat", fallback))
-        demands.append(max(0.0, float(value)))
+
+    if _is_weekly_forecast_points(points):
+        # Weekly totals → daily rates. Rescale using BASELINE mean so that
+        # expected_drop_pct still lowers disrupted demand relative to the
+        # active-record demand level (L5 is SKU-weekly; L6 inventory is
+        # order-level — raw weekly units caused 99%+ stockout / $Ms).
+        baseline_daily: List[float] = []
+        disrupted_daily: List[float] = []
+        for point in points:
+            baseline_w = point.get(
+                "demand_baseline",
+                point.get("demand_disrupted", point.get("yhat", fallback)),
+            )
+            disrupted_w = point.get(
+                "demand_disrupted",
+                point.get("yhat", baseline_w),
+            )
+            baseline_daily.extend([max(0.0, float(baseline_w)) / 7.0] * 7)
+            disrupted_daily.extend([max(0.0, float(disrupted_w)) / 7.0] * 7)
+        baseline_mean = sum(baseline_daily) / len(baseline_daily) if baseline_daily else 0.0
+        scale = (fallback / baseline_mean) if baseline_mean > 1e-9 else 1.0
+        demands = [d * scale for d in disrupted_daily]
+    else:
+        for point in points[:horizon_days]:
+            value = point.get("demand_disrupted", point.get("yhat", fallback))
+            demands.append(max(0.0, float(value)))
+
     while len(demands) < horizon_days:
         demands.append(demands[-1] if demands else fallback)
     return demands[:horizon_days]
@@ -144,16 +179,19 @@ def build_simulation_params(state: GlobalState, trials: int, seed: Optional[int]
         unit_price = 1.0
 
     severity = float(meta.severity) if meta else 0.0
-    # Prefer L4's canonical duration_days (ForecastHandoff, already the max
-    # of L2 news evidence + event shock_duration_days -- see
-    # risk_classifier_agent._max_duration_days) over recomputing from raw
-    # event_metadata directly, so L5/L6 agree on the same disruption length
-    # L4 actually classified on. Falls back to event_metadata when L4 had no
-    # sku_id to build a handoff for (e.g. rule-only replay).
-    if state.forecast_handoff is not None and state.forecast_handoff.duration_days is not None:
+    # Prefer L4's canonical duration_days when a real disruption is in play.
+    # When the event itself says shock_duration_days=0 and severity is low
+    # (clean baseline / quiet live), do NOT let an inflated handoff duration
+    # (e.g. 30d from news defaults) force a single-inbound crisis Monte Carlo.
+    meta_shock = int(meta.shock_duration_days) if meta else 0
+    if (
+        state.forecast_handoff is not None
+        and state.forecast_handoff.duration_days is not None
+        and not (meta_shock == 0 and severity <= 0.15)
+    ):
         shock_duration = int(state.forecast_handoff.duration_days)
     else:
-        shock_duration = int(meta.shock_duration_days) if meta else 0
+        shock_duration = meta_shock
     recovery_window = int(meta.recovery_window_days) if meta else 60
     disruption_type = (meta.disruption_type if meta else "unknown").lower()
 
