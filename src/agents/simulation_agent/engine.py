@@ -23,10 +23,23 @@ def _sample_disruption_duration(params: SimulationParams, rng: np.random.Generat
     if params.shock_duration_days > 0:
         jitter = rng.integers(-1, 2)
         return max(1, params.shock_duration_days + int(jitter))
+    # Quiet / clean-baseline events: do not open a disruption window from
+    # news expected_duration or invented severity defaults.
+    if params.severity <= 0.15 or params.disruption_type in {"none", "unknown", ""}:
+        return 0
     if params.expected_duration_days is not None and params.expected_duration_days > 0:
         return max(1, int(rng.lognormal(np.log(params.expected_duration_days), 0.35)))
     base = 3 + int(params.severity * 14)
     return max(1, int(rng.normal(base, max(1.0, base * 0.25))))
+
+
+def _steady_state_replenish_qty(params: SimulationParams, lead_time: int) -> float:
+    """Order quantity that covers average daily demand over one lead-time cycle."""
+    if params.forecast_daily_demands:
+        avg_daily = float(np.mean(params.forecast_daily_demands))
+    else:
+        avg_daily = params.mean_daily_demand
+    return max(params.incoming_supply, avg_daily * max(lead_time, 1))
 
 
 def _sample_lead_time(params: SimulationParams, rng: np.random.Generator) -> float:
@@ -84,7 +97,9 @@ def _apply_post_disruption_demand(
     demand: float,
     params: SimulationParams,
 ) -> float:
-    if day >= disruption_end and params.forecast_daily_demands:
+    # Only taper demand after a real disruption window — when disruption_end
+    # is 0, `day >= 0` would incorrectly dampen every calm-run day.
+    if disruption_end > 0 and day >= disruption_end and params.forecast_daily_demands:
         return demand * (1.0 - min(0.5, params.composite_score * 0.25))
     return demand
 
@@ -95,16 +110,32 @@ def _run_single_trial(params: SimulationParams, rng: np.random.Generator) -> Tup
     disruption_end = disruption_duration
 
     supplier_reliable = True
-    if params.incoming_supply > 0:
+    if params.incoming_supply > 0 or disruption_duration <= 0:
         reliability = 0.55 + (1.0 - params.severity) * 0.35
-        supplier_reliable = bool(rng.random() < reliability)
+        # Calm / low-severity baseline: assume replenishment lands.
+        if disruption_duration <= 0 and params.severity <= 0.15:
+            supplier_reliable = True
+        else:
+            supplier_reliable = bool(rng.random() < reliability)
 
-    inbound_qty = params.incoming_supply if supplier_reliable else 0.0
-    # Defects consume part of the inbound shipment before it becomes usable
-    # inventory — see _defective_unit_loss().
-    inbound_qty *= 1.0 - _defective_unit_loss(params, rng)
+    defect_loss = _defective_unit_loss(params, rng)
+    inbound_schedule: dict = {}
+
+    if disruption_duration <= 0 and params.severity <= 0.15:
+        # Steady-state ops: recurring replenishment every lead-time cycle.
+        # A single inbound over a 60–90 day horizon always stocked out calm runs.
+        cycle = max(lead_time, 1)
+        qty = _steady_state_replenish_qty(params, cycle) * (1.0 - defect_loss)
+        for day in range(cycle, params.horizon_days, cycle):
+            inbound_schedule[day] = qty
+    else:
+        inbound_qty = params.incoming_supply if supplier_reliable else 0.0
+        # Defects consume part of the inbound shipment before it becomes usable
+        # inventory — see _defective_unit_loss().
+        inbound_qty *= 1.0 - defect_loss
+        inbound_schedule = {lead_time: inbound_qty}
+
     inventory = params.initial_inventory
-    inbound_schedule = {lead_time: inbound_qty}
 
     stockout = False
     first_stockout_day: Optional[float] = None
@@ -135,9 +166,9 @@ def _run_single_trial(params: SimulationParams, rng: np.random.Generator) -> Tup
             peak_gap_pct = max(peak_gap_pct, gap_pct)
 
     revenue_loss = unmet_demand * params.unit_price_usd
+    # Unmet-demand share of total demand (0-100). Used for P10/P50/P90 so the
+    # three UI stockout percentiles are drawn from the same distribution.
     severity_score = min(100.0, (unmet_demand / max(total_demand, 1.0)) * 100.0)
-    if stockout:
-        severity_score = max(severity_score, 50.0)
 
     return stockout, first_stockout_day or float("nan"), revenue_loss, severity_score
 
@@ -159,23 +190,28 @@ def run_monte_carlo(params: SimulationParams) -> SimulationResult:
         revenue_losses.append(revenue_loss)
         severity_scores.append(severity_score)
 
-    flags_arr = np.array(stockout_flags, dtype=float)
     severity_arr = np.array(severity_scores, dtype=float)
     revenue_arr = np.array(revenue_losses, dtype=float)
     stockout_day_arr = np.array(stockout_days, dtype=float) if stockout_days else np.array([])
 
-    stockout_prob = float(flags_arr.mean() * 100.0)
     expected_gap = float(severity_arr.mean())
+    # P10/P50/P90 must be percentiles of ONE distribution. Mixing the binary
+    # stockout rate (P50) with unmet-demand severity percentiles (P10/P90)
+    # produced nonsensical orderings like P50=100% > P90=50%.
+    severity_p10 = _percentile(severity_arr, 10) or 0.0
+    severity_p50 = _percentile(severity_arr, 50) or 0.0
+    severity_p90 = _percentile(severity_arr, 90) or 0.0
 
     sample_idx = np.linspace(0, len(revenue_arr) - 1, min(MAX_HISTOGRAM_SAMPLES, len(revenue_arr)), dtype=int)
     revenue_samples = [float(revenue_arr[i]) for i in sample_idx]
 
     return SimulationResult(
-        stockout_probability_pct=round(stockout_prob, 2),
+        # Primary UI "stockout %" band = unmet-demand severity percentiles.
+        stockout_probability_pct=round(severity_p50, 2),
         expected_inventory_gap_pct=round(expected_gap, 2),
         alternate_route=params.alternate_route,
-        stockout_probability_p10=round(_percentile(severity_arr, 10) or 0.0, 2),
-        stockout_probability_p90=round(_percentile(severity_arr, 90) or 0.0, 2),
+        stockout_probability_p10=round(severity_p10, 2),
+        stockout_probability_p90=round(severity_p90, 2),
         days_to_stockout_p50=_percentile(stockout_day_arr, 50),
         days_to_stockout_p10=_percentile(stockout_day_arr, 10),
         days_to_stockout_p90=_percentile(stockout_day_arr, 90),
