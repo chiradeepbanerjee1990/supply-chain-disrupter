@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Activity, BarChart2, Shield, Eye, Database, Settings, Play,
-  Copy, Clock, Server, Map, RefreshCw, Wrench, Sparkles,
+  Copy, Clock, Server, Map, RefreshCw, Wrench, Sparkles, LogOut,
 } from "lucide-react";
 import { AgentNode } from "./components/AgentNode";
 import { TabPlaceholder } from "./components/TabPlaceholder";
@@ -16,6 +16,7 @@ import { TabTrulens } from "./TabTrulens";
 import { TabAdmin } from "./TabAdmin";
 import { usePipelineStatus } from "./hooks/usePipelineStatus";
 import { DemoScenarioInjector } from "./components/pipeline/DemoScenarioInjector";
+import { logout } from "./LoginGate";
 
 const TABS = [
   { icon: Activity, label: "Live Feed", day: 2 },
@@ -122,6 +123,13 @@ export default function App() {
             {pipelineRunning ? <RefreshCw size={11} className="animate-spin" /> : <Play size={11} fill="white" />}
             {pipelineRunning ? "Running…" : "Run Pipeline"}
           </button>
+
+          <button
+            onClick={logout}
+            className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Logout
+          </button>
         </div>
       </div>
 
@@ -148,9 +156,12 @@ export default function App() {
               <tab.icon size={15} />
             </button>
           ))}
-          <div className="mt-auto">
+          <div className="mt-auto flex flex-col items-center gap-1">
             <button title="Settings" className="flex items-center justify-center w-9 h-9 rounded text-status-idle transition-colors hover:text-muted-foreground">
               <Settings size={15} />
+            </button>
+            <button title="Log out" onClick={logout} className="flex items-center justify-center w-9 h-9 rounded text-status-idle transition-colors hover:text-muted-foreground">
+              <LogOut size={15} />
             </button>
           </div>
         </div>
