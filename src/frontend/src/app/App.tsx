@@ -117,7 +117,7 @@ export default function App() {
           <button
             onClick={() => setShowRunModal(true)}
             disabled={pipelineRunning}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-semibold text-white transition-opacity disabled:opacity-50 disabled:cursor-not-allowed bg-secondary border border-primary/20"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-semibold text-secondary-foreground transition-opacity disabled:opacity-50 disabled:cursor-not-allowed bg-secondary border border-primary/20"
           >
             {pipelineRunning ? <RefreshCw size={11} className="animate-spin" /> : <Play size={11} fill="white" />}
             {pipelineRunning ? "Running…" : "Run Pipeline"}

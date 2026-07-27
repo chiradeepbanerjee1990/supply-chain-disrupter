@@ -33,7 +33,7 @@ export function RefreshControl() {
       <button
         onClick={() => mutate()}
         disabled={running}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-semibold text-white bg-secondary border border-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-semibold text-secondary-foreground bg-secondary border border-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
       >
         <RefreshCw size={11} className={running ? "animate-spin" : ""} />
         {running ? "Fetching live signals…" : "Refresh Live Data"}
