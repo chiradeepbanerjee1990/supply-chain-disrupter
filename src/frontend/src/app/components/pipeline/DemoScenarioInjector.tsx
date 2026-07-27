@@ -55,7 +55,14 @@ export function DemoScenarioInjector({
       onClick={onClose}
     >
       <div
-        className="rounded-xl p-5 w-[460px] bg-panel border border-border shadow-2xl"
+        // bg-panel was never a real defined token (no --color-panel
+        // anywhere in theme.css), so it rendered fully transparent — using
+        // bg-card here instead, same as the rest of the (now light) app.
+        // Every child below (text-foreground, bg-secondary, bg-background,
+        // text-muted-foreground, border-border) already reads live from
+        // theme.css, so they resolve to the correct light-mode values with
+        // no further changes needed.
+        className="rounded-xl p-5 w-[460px] bg-card border border-border shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -117,7 +124,7 @@ export function DemoScenarioInjector({
           <button
             onClick={runReplay}
             disabled={isPending || !replayRunId}
-            className="px-3 py-1.5 rounded-btn text-xs font-semibold text-white bg-secondary border border-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 rounded-btn text-xs font-semibold text-secondary-foreground bg-secondary border border-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Replay
           </button>
