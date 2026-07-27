@@ -157,16 +157,51 @@ def show_demand_forecasts() -> None:
         "using backtest-ablation regressor selection."
     )
 
+    # Build full SKU list from ops_kpi so thin SKUs appear with an info message.
+    from src.agents.forecast.agent import MIN_HISTORY_WEEKS
+    try:
+        import pandas as pd
+        _xlsx = "data/raw/supply_chain_lite_master.xlsx"
+        _ops = pd.read_excel(_xlsx, sheet_name="Ops KPI (Filled)", header=1)
+        _counts = _ops.groupby("SKU_ID").size()
+        all_skus = sorted(_counts.index.tolist())
+        thin_skus = set(_counts[_counts < MIN_HISTORY_WEEKS].index.tolist())
+    except Exception:
+        all_skus = None
+        thin_skus = set()
+
     json_files = sorted(_FORECAST_OUTPUTS_DIR.glob("forecast_result_SKU*.json"))
-    if not json_files:
+    json_sku_set = {p.stem.replace("forecast_result_", "") for p in json_files}
+
+    if all_skus:
+        sku_ids = all_skus
+    elif json_files:
+        sku_ids = [p.stem.replace("forecast_result_", "") for p in json_files]
+    else:
         st.warning(
             f"No pre-generated forecast files found in `{_FORECAST_OUTPUTS_DIR}`. "
             "Run `python -m src.agents.forecast.agent --all` from the project root to generate them."
         )
         return
 
-    sku_ids = [p.stem.replace("forecast_result_", "") for p in json_files]
     selected_sku = st.selectbox("Select SKU", sku_ids)
+
+    if selected_sku in thin_skus:
+        row_count = int(_counts[selected_sku])
+        st.info(
+            f"\u2139\ufe0f **{selected_sku} has insufficient sales history for time-series forecasting.**  \n"
+            f"Only **{row_count} weeks** of data are available (minimum required: {MIN_HISTORY_WEEKS} weeks / ~6 months).  \n"
+            "A reliable demand forecast needs enough history to detect trends and seasonality. "
+            "Select a SKU with more data to see a forecast."
+        )
+        return
+
+    if selected_sku not in json_sku_set:
+        st.info(
+            f"\u2139\ufe0f No pre-computed forecast found for **{selected_sku}**.  \n"
+            "Run `python -m src.agents.forecast.agent --all` to generate it."
+        )
+        return
 
     json_path = _FORECAST_OUTPUTS_DIR / f"forecast_result_{selected_sku}.json"
     with json_path.open() as fh:

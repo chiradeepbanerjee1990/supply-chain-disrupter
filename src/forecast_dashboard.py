@@ -17,7 +17,7 @@ Endpoints:
 
 from flask import Flask, jsonify, render_template_string, request
 
-from src.agents.forecast.agent import DemandForecastingAgent, MIN_HISTORY_WEEKS
+from src.agents.forecast.agent import DemandForecastingAgent, MIN_HISTORY_WEEKS, IrregularDataError, InsufficientHistoryError
 
 app = Flask(__name__)
 
@@ -101,6 +101,27 @@ function renderModelComparisonChart(data) {
   const noteEl = document.getElementById("model-comparison-note");
   const scoresEl = document.getElementById("model-comparison-scores");
 
+  if (data.insufficient || data.irregular) {
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    legendEl.innerHTML = "";
+    scoresEl.innerHTML = "";
+    noteEl.style.display = "block";
+    if (data.insufficient) {
+      noteEl.style.background = "#e8f4fd";
+      noteEl.style.borderLeft = "4px solid #2a78d6";
+      noteEl.style.color = "#1a4a7a";
+      noteEl.innerHTML = `<strong>ℹ️ Insufficient history — forecast unavailable</strong><br>${data.message}`;
+    } else {
+      noteEl.style.background = "#fff8e1";
+      noteEl.style.borderLeft = "4px solid #f59e0b";
+      noteEl.style.color = "#7c5e10";
+      noteEl.innerHTML = `<strong>⚠️ Non-contiguous data — forecast skipped</strong><br>${data.message}`;
+    }
+    return;
+  }
+  noteEl.style.background = "";
+  noteEl.style.borderLeft = "";
+  noteEl.style.color = "";
   const datasets = [
     { key: "actual",  label: "Actual",  values: data.actual,  dash: [] },
     { key: "prophet", label: "Prophet" + (data.winner === "prophet" ? " (winner)" : ""), values: data.prophet, dash: [6,3] },
@@ -212,6 +233,35 @@ async function loadForecast(skuId) {
   const disruptionActive = document.getElementById("disruption-active").checked ? 1 : 0;
   const res = await fetch(`/api/forecast/${skuId}?risk_score=${risk}&disruption_flag=${disruptionActive}`);
   const data = await res.json();
+  if (data.insufficient || data.irregular) {
+    if (forecastChartInstance) { forecastChartInstance.destroy(); forecastChartInstance = null; }
+    document.getElementById("forecast-model-name").textContent = "-";
+    document.getElementById("drop-pct-value").textContent = "-";
+    document.getElementById("stockout-prob-value").textContent = "-";
+    const forecastRoot = document.getElementById("forecast-root");
+    let infoBox = forecastRoot.querySelector(".forecast-info-box");
+    if (!infoBox) {
+      infoBox = document.createElement("div");
+      infoBox.className = "forecast-info-box";
+      infoBox.style.cssText = "margin-top:12px;padding:0.75rem 1rem;border-radius:8px;font-size:13px;";
+      forecastRoot.appendChild(infoBox);
+    }
+    if (data.insufficient) {
+      infoBox.style.background = "#e8f4fd";
+      infoBox.style.borderLeft = "4px solid #2a78d6";
+      infoBox.style.color = "#1a4a7a";
+      infoBox.innerHTML = `<strong>ℹ️ Insufficient history — forecast unavailable</strong><br>${data.message}`;
+    } else {
+      infoBox.style.background = "#fff8e1";
+      infoBox.style.borderLeft = "4px solid #f59e0b";
+      infoBox.style.color = "#7c5e10";
+      infoBox.innerHTML = `<strong>⚠️ Non-contiguous data — forecast skipped</strong><br>${data.message}`;
+    }
+    return;
+  }
+  // Clear any previous info box on successful load
+  const prevBox = document.getElementById("forecast-root").querySelector(".forecast-info-box");
+  if (prevBox) prevBox.remove();
   if (data.error) {
     console.error(data.error);
     return;
@@ -250,7 +300,7 @@ def dashboard():
 
 @app.route("/api/skus")
 def api_skus():
-    return jsonify(agent.list_skus(min_weeks=MIN_HISTORY_WEEKS))
+    return jsonify(agent.list_skus(min_weeks=1))
 
 
 @app.route("/api/model-comparison/<sku_id>")
@@ -258,6 +308,10 @@ def api_model_comparison(sku_id):
     try:
         data = agent.get_model_comparison_chart_data(sku_id)
         return jsonify(data)
+    except InsufficientHistoryError as e:
+        return jsonify({"insufficient": True, "message": str(e), "sku_id": sku_id})
+    except IrregularDataError as e:
+        return jsonify({"irregular": True, "message": str(e), "sku_id": sku_id})
     except Exception as e:
         return jsonify({"error": f"{type(e).__name__}: {e}"}), 400
 
@@ -287,6 +341,10 @@ def api_forecast(sku_id):
             "stockout_prob": result.stockout_prob,
             "disruption_scenario": result.disruption_scenario,
         })
+    except InsufficientHistoryError as e:
+        return jsonify({"insufficient": True, "message": str(e), "sku_id": sku_id})
+    except IrregularDataError as e:
+        return jsonify({"irregular": True, "message": str(e), "sku_id": sku_id})
     except Exception as e:
         return jsonify({"error": f"{type(e).__name__}: {e}"}), 400
 

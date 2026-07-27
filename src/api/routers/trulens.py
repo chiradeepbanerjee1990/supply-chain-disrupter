@@ -26,13 +26,19 @@ from pydantic import BaseModel
 
 from src.agents.demo_injector import build_demo_payload
 from src.api.schemas import DemoScenarioId
-from src.evaluation.trulens_integration.feedback_functions import (
-    ensemble_agreement,
-    node_latency_check,
-    risk_score_stability,
-)
-from src.evaluation.trulens_integration.wrapper import run_with_trulens
 from src.utils.db_utils import fetch_recent_composite_scores, fetch_recent_ensemble_signals
+
+try:
+    from src.evaluation.trulens_integration.feedback_functions import (
+        ensemble_agreement,
+        node_latency_check,
+        risk_score_stability,
+    )
+    from src.evaluation.trulens_integration.wrapper import run_with_trulens
+    _TRULENS_AVAILABLE = True
+except ModuleNotFoundError:
+    ensemble_agreement = node_latency_check = risk_score_stability = run_with_trulens = None  # type: ignore
+    _TRULENS_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

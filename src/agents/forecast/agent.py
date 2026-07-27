@@ -110,6 +110,14 @@ class InsufficientHistoryError(ValueError):
     to fit a meaningful trend + yearly seasonality."""
 
 
+class IrregularDataError(ValueError):
+    """Raised when a SKU's ops_kpi observations have large time gaps that make
+    time-series forecasting unreliable (non-contiguous weekly data)."""
+
+
+_MAX_GAP_WEEKS = 104  # flag gaps larger than 2 years; model selection handles smaller gaps
+
+
 @dataclass
 class _DFAResult:
     """Internal per-run result produced by DemandForecastingAgent.run().
@@ -173,6 +181,21 @@ class DemandForecastingAgent:
         if df.empty:
             raise ValueError(f"No ops_kpi rows found for sku_id={sku_id}")
         df = df.sort_values("Week_Start")
+        if len(df) < MIN_HISTORY_WEEKS:
+            raise InsufficientHistoryError(
+                f"{sku_id} has only {len(df)} weeks of sales data "
+                f"(minimum required: {MIN_HISTORY_WEEKS} weeks). "
+                f"A reliable forecast needs enough history to detect trends and seasonality."
+            )
+        if len(df) >= 2:
+            max_gap_days = int(df["Week_Start"].diff().dropna().max().days)
+            if max_gap_days > _MAX_GAP_WEEKS * 7:
+                max_gap_weeks = round(max_gap_days / 7)
+                raise IrregularDataError(
+                    f"{sku_id} has a {max_gap_weeks}-week gap in its ops_kpi history "
+                    f"(max allowed: {_MAX_GAP_WEEKS} weeks). Forecasting non-contiguous "
+                    f"data produces unreliable results — use observed history for planning."
+                )
 
         market = self._weekly_market_regressors()
         df = pd.merge_asof(
@@ -187,8 +210,9 @@ class DemandForecastingAgent:
         if self.ops_kpi is None:
             self._load_source_tables()
         counts = self.ops_kpi.groupby("SKU_ID").size()
-        eligible = counts[counts >= min_weeks].sort_values(ascending=False)
-        return eligible.index.tolist()
+        # Include ALL SKUs with enough rows — irregular ones remain in the
+        # dropdown; the API endpoints surface an informational message for them.
+        return counts[counts >= min_weeks].sort_values(ascending=False).index.tolist()
 
     # ---------------------------------------------------------------
     # Modeling
@@ -716,7 +740,7 @@ class DemandForecastingAgent:
         for sku in sku_ids:
             try:
                 results[sku] = self.run(sku, disruption_scenario=disruption_scenario)
-            except InsufficientHistoryError as e:
+            except (InsufficientHistoryError, IrregularDataError) as e:
                 skipped.append((sku, str(e)))
             except Exception as e:
                 if not skip_errors:
@@ -790,6 +814,10 @@ def demand_forecasting_agent(state: Any) -> Dict[str, Any]:
     agent = DemandForecastingAgent()
     try:
         result: _DFAResult = agent.run(sku_id, disruption_scenario=disruption_scenario)
+    except IrregularDataError as exc:
+        return {
+            "agent_logs": state.agent_logs + [f"L5: SKIPPED – {exc}"],
+        }
     except InsufficientHistoryError as exc:
         return {
             "agent_logs": state.agent_logs + [f"L5: SKIPPED – {exc}"],

@@ -71,6 +71,44 @@ SCENARIO_METADATA: Dict[str, Dict[str, Any]] = {
 }
 
 
+def _forecastable_product_names() -> set:
+    """Return the set of product names that have a forecastable ops_kpi entry.
+
+    A SKU is forecastable when it has >= MIN_HISTORY_WEEKS rows in ops_kpi
+    AND its largest inter-observation gap is <= _MAX_GAP_WEEKS weeks.
+    Resolved via SQLite so we don't load the xlsx here.
+    """
+    from src.agents.forecast.agent import MIN_HISTORY_WEEKS, _MAX_GAP_WEEKS
+    from src.utils.db_utils import execute_query
+    rows = execute_query(
+        "SELECT sku_id, product_name FROM sku_product_mapping"
+    )
+    sku_to_products: dict = {}
+    for r in rows:
+        sku_to_products.setdefault(r["sku_id"], set()).add(r["product_name"])
+
+    ops_rows = execute_query(
+        "SELECT sku_id, week_start FROM ops_kpi ORDER BY sku_id, week_start"
+    )
+    from collections import defaultdict
+    import datetime
+    by_sku: dict = defaultdict(list)
+    for r in ops_rows:
+        by_sku[r["sku_id"]].append(r["week_start"])
+
+    good_products: set = set()
+    max_gap_days = _MAX_GAP_WEEKS * 7
+    for sku_id, dates in by_sku.items():
+        if len(dates) < MIN_HISTORY_WEEKS:
+            continue
+        parsed = sorted(datetime.date.fromisoformat(d[:10]) for d in dates)
+        gaps = [(parsed[i + 1] - parsed[i]).days for i in range(len(parsed) - 1)]
+        if gaps and max(gaps) > max_gap_days:
+            continue
+        good_products |= sku_to_products.get(sku_id, set())
+    return good_products
+
+
 def _pick_scenario_record(scenario_id: str) -> Dict[str, Any]:
     """Pick a (port, sku, event_date) baseline matching the scenario's
     region hint. Three-tier fallback:
@@ -84,10 +122,15 @@ def _pick_scenario_record(scenario_id: str) -> Dict[str, Any]:
       3. Any region, most Prophet history — last resort, only reached if
          even the broadened region-matched pool is empty (or the scenario
          has no region hint at all, e.g. clean_baseline).
+    In all tiers, the pool is pre-filtered to SKUs that have sufficient
+    and continuous ops_kpi history for demand forecasting.  Falls back to
+    the unfiltered pool only if no forecastable option exists in the region.
     """
     options = fetch_scenario_options()
     if not options:
         raise RuntimeError("No scenario options — run: python scripts/build_databases.py")
+
+    good = _forecastable_product_names()
 
     hints = _REGION_HINTS.get(scenario_id, [])
     matches = [row for row in options if row.get("port") in hints] if hints else []
@@ -96,6 +139,9 @@ def _pick_scenario_record(scenario_id: str) -> Dict[str, Any]:
         matches = fetch_scenario_options_for_regions(hints)
 
     pool = matches or options
+    # Prefer forecastable SKUs; fall back to full pool if region has none.
+    forecastable_pool = [r for r in pool if r.get("sku") in good]
+    pool = forecastable_pool or pool
     return max(pool, key=lambda r: r.get("history_points") or 0)
 
 
