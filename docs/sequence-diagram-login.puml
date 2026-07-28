@@ -1,0 +1,34 @@
+@startuml sequence-diagram-login
+
+title Login gate (frontend-only)
+
+actor User
+participant Browser
+participant LoginGate
+participant LoginScreen
+collections "localStorage" as LS
+participant "React App" as App
+
+Browser -> LoginGate : mount
+LoginGate -> LS : getItem("sc_authed")
+
+alt not authed
+  LoginGate -> LoginScreen : render
+  User -> LoginScreen : submit password
+  LoginScreen -> LoginScreen : compare to VITE_LOGIN_PASSWORD\n(build-time inlined)
+  alt match
+    LoginScreen -> LS : setItem("sc_authed", "true")
+    LoginScreen -> LoginGate : onSuccess()
+    LoginGate -> App : render children
+  else no match
+    LoginScreen --> User : "Incorrect password"
+  end
+else already authed
+  LoginGate -> App : render children directly
+end
+
+User -> App : click Logout
+App -> LS : removeItem("sc_authed")
+App -> Browser : window.location.reload()
+
+@enduml

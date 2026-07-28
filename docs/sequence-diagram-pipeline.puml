@@ -1,0 +1,50 @@
+@startuml sequence-diagram-pipeline
+
+title "Run Pipeline" — live mode, end to end
+
+actor User
+participant "React SPA" as UI
+participant "FastAPI\n(pipeline router)" as API
+participant "DataIngestionAgent" as Ingest
+participant "LangGraph\n(L1-L7)" as Graph
+participant "Guardrails" as Guard
+database "SQLite\n(db_utils)" as DB
+participant "OpenAI" as LLM
+
+User -> UI : Click "Run Pipeline" -> Start Live Ingestion
+UI -> API : POST /api/pipeline/run {mode: "live"}
+API --> UI : 202 {run_id}
+API -> Ingest : run_batch() — pre-L1 connector sweep
+Ingest -> DB : write live_news_ingest / live_weather_ingest
+API -> Graph : build_agent_graph(payload).stream()
+
+Graph -> Graph : L1 data_ingestion_agent
+Graph -> DB : ensure_schema(), read live_*_ingest rows
+Graph -> Graph : L2 news_event_analysis_agent
+Graph -> LLM : structured call (NewsAnalysisLLMOutput)
+Graph -> Guard : log_guardrail_event(L2, ...)
+Graph -> Graph : L3 weather_risk_monitoring_agent
+Graph -> LLM : structured call (WeatherRiskLLMOutput)
+Graph -> Graph : L4 risk_classifier_agent
+Graph -> Graph : compute RuleBasedSignal
+Graph -> Graph : run_distilbert_inference()
+Graph -> LLM : run_llm_signal() (two-stage RAG)
+Graph -> LLM : run_judge() — final verdict
+Graph -> Guard : validate_output_* checks
+Graph -> Graph : L5 demand_forecasting_agent (optional)
+Graph -> Graph : L6 simulation_agent (optional, Monte Carlo)
+Graph -> Graph : L7 mitigation_recommendation_agent
+Graph -> LLM : structured call (MitigationLLMOutput)
+Graph -> DB : pipeline_bridge.persist_*_output() per stage
+
+loop poll every few seconds
+  UI -> API : GET /api/pipeline/status?run_id=...
+  API -> DB : fetch_pipeline_status(run_id)
+  API --> UI : agent statuses, is_complete
+end
+
+UI -> API : GET /api/risk-classification/{run_id}, etc.
+API -> DB : fetch persisted outputs
+API --> UI : render Risk Classification / Forecast / Mitigation tabs
+
+@enduml
