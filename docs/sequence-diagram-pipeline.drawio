@@ -1,0 +1,428 @@
+<?xml version="1.0" ?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Run Pipeline — live mode" id="seq-sequence-diagram-pipeline.drawio">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="124" value="loop [poll every few seconds]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;verticalAlign=top;align=left;fontSize=10;fontStyle=1;spacingLeft=6;spacingTop=2;" vertex="1" parent="1">
+          <mxGeometry x="310" y="1040" width="1160" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="2" value="User" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="React SPA" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="FastAPI
+(pipeline router)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="480" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="DataIngestionAgent" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="LangGraph
+(L1-L7)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="920" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="Guardrails" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="SQLite
+(db_utils)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="OpenAI" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1580" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" style="point;" vertex="1" parent="1">
+          <mxGeometry x="120" y="80" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="11" style="point;" vertex="1" parent="1">
+          <mxGeometry x="120" y="1310" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" style="endArrow=none;dashed=1;html=1;edgeStyle=none;" edge="1" parent="1" source="10" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" style="point;" vertex="1" parent="1">
+          <mxGeometry x="340" y="80" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" style="point;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1310" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" style="endArrow=none;dashed=1;html=1;edgeStyle=none;" edge="1" parent="1" source="13" target="14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="80" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="17" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1310" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" style="endArrow=none;dashed=1;html=1;edgeStyle=none;" edge="1" parent="1" source="16" target="17">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" style="point;" vertex="1" parent="1">
+          <mxGeometry x="780" y="80" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="20" style="point;" vertex="1" parent="1">
+          <mxGeometry x="780" y="1310" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="21" style="endArrow=none;dashed=1;html=1;edgeStyle=none;" edge="1" parent="1" source="19" target="20">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="22" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="80" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="23" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1310" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="24" style="endArrow=none;dashed=1;html=1;edgeStyle=none;" edge="1" parent="1" source="22" target="23">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="25" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="80" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="26" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="1310" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="27" style="endArrow=none;dashed=1;html=1;edgeStyle=none;" edge="1" parent="1" source="25" target="26">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="28" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="80" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="29" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1310" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="30" style="endArrow=none;dashed=1;html=1;edgeStyle=none;" edge="1" parent="1" source="28" target="29">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="31" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="80" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="32" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="1310" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="33" style="endArrow=none;dashed=1;html=1;edgeStyle=none;" edge="1" parent="1" source="31" target="32">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="34" style="point;" vertex="1" parent="1">
+          <mxGeometry x="120" y="100" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="35" style="point;" vertex="1" parent="1">
+          <mxGeometry x="340" y="100" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="36" value="Click &quot;Run Pipeline&quot; -&gt; Start Live Ingestion" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="34" target="35">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="37" style="point;" vertex="1" parent="1">
+          <mxGeometry x="340" y="140" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="38" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="140" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="39" value="POST /api/pipeline/run {mode: &quot;live&quot;}" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="37" target="38">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="40" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="180" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="41" style="point;" vertex="1" parent="1">
+          <mxGeometry x="340" y="180" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="42" value="202 {run_id}" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;dashed=1;endFill=0;" edge="1" parent="1" source="40" target="41">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="43" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="220" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="44" style="point;" vertex="1" parent="1">
+          <mxGeometry x="780" y="220" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="45" value="run_batch() - pre-L1 connector sweep" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="43" target="44">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="46" style="point;" vertex="1" parent="1">
+          <mxGeometry x="780" y="260" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="47" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="260" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="48" value="write live_news_ingest / live_weather_ingest" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="46" target="47">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="49" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="300" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="50" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="300" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="51" value="build_agent_graph(payload).stream()" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="49" target="50">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="52" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="340" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="53" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="364" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="54" value="L1 data_ingestion_agent" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;rounded=1;" edge="1" parent="1" source="52" target="53">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="340"/>
+              <mxPoint x="1070" y="364"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="55" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="380" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="56" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="380" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="57" value="ensure_schema(), read live_*_ingest rows" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="55" target="56">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="58" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="420" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="59" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="444" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="60" value="L2 news_event_analysis_agent" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;rounded=1;" edge="1" parent="1" source="58" target="59">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="420"/>
+              <mxPoint x="1070" y="444"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="61" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="460" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="62" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="460" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="63" value="structured call (NewsAnalysisLLMOutput)" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="61" target="62">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="64" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="500" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="65" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="500" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="66" value="log_guardrail_event(L2, ...)" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="64" target="65">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="67" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="540" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="68" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="564" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="69" value="L3 weather_risk_monitoring_agent" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;rounded=1;" edge="1" parent="1" source="67" target="68">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="540"/>
+              <mxPoint x="1070" y="564"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="70" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="580" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="71" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="580" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="72" value="structured call (WeatherRiskLLMOutput)" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="70" target="71">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="73" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="620" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="74" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="644" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="75" value="L4 risk_classifier_agent" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;rounded=1;" edge="1" parent="1" source="73" target="74">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="620"/>
+              <mxPoint x="1070" y="644"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="76" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="660" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="77" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="684" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="78" value="compute RuleBasedSignal" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;rounded=1;" edge="1" parent="1" source="76" target="77">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="660"/>
+              <mxPoint x="1070" y="684"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="79" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="700" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="80" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="724" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="81" value="run_distilbert_inference()" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;rounded=1;" edge="1" parent="1" source="79" target="80">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="700"/>
+              <mxPoint x="1070" y="724"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="82" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="740" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="83" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="740" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="84" value="run_llm_signal() (two-stage RAG)" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="82" target="83">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="85" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="780" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="86" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="780" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="87" value="run_judge() - final verdict" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="85" target="86">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="88" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="820" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="89" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="820" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="90" value="validate_output_* checks" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="88" target="89">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="91" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="860" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="92" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="884" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="93" value="L5 demand_forecasting_agent (optional)" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;rounded=1;" edge="1" parent="1" source="91" target="92">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="860"/>
+              <mxPoint x="1070" y="884"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="94" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="900" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="95" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="924" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="96" value="L6 simulation_agent (optional, Monte Carlo)" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;rounded=1;" edge="1" parent="1" source="94" target="95">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="900"/>
+              <mxPoint x="1070" y="924"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="97" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="940" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="98" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="964" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="99" value="L7 mitigation_recommendation_agent" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;rounded=1;" edge="1" parent="1" source="97" target="98">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="940"/>
+              <mxPoint x="1070" y="964"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="100" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="980" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="101" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="980" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="102" value="structured call (MitigationLLMOutput)" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="100" target="101">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="103" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1020" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="104" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1020" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="105" value="pipeline_bridge.persist_*_output() per stage" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="103" target="104">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="106" style="point;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1060" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="107" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1060" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="108" value="GET /api/pipeline/status?run_id=..." style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="106" target="107">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="109" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1100" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="110" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1100" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="111" value="fetch_pipeline_status(run_id)" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="109" target="110">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="112" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1140" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="113" style="point;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1140" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="114" value="agent statuses, is_complete" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;dashed=1;endFill=0;" edge="1" parent="1" source="112" target="113">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="115" style="point;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1180" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="116" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1180" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="117" value="GET /api/risk-classification/{run_id}, etc." style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="115" target="116">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="118" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1220" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="119" style="point;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1220" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="120" value="fetch persisted outputs" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;" edge="1" parent="1" source="118" target="119">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="121" style="point;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1260" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="122" style="point;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1260" width="1" height="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="123" value="render Risk Classification / Forecast / Mitigation tabs" style="endArrow=block;html=1;edgeStyle=none;fontSize=10;dashed=1;endFill=0;" edge="1" parent="1" source="121" target="122">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

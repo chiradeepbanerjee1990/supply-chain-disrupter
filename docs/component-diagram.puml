@@ -1,0 +1,72 @@
+@startuml component-diagram
+
+title Component Diagram — Supply Chain Disruption Predictor
+
+skinparam componentStyle rectangle
+skinparam wrapWidth 200
+
+package "Browser" {
+  [React SPA\nLoginGate -> App -> Tabs] as UI
+}
+
+package "Vercel (Frontend Host)" {
+  [Static build (Vite)\nsrc/frontend/dist] as Static
+  [vercel.json rewrite\n/api/* -> Railway] as Rewrite
+}
+
+package "Railway (Backend Host)" {
+  [FastAPI app\nsrc/api/main.py] as FastAPI
+  [Routers\npipeline, live_feed, risk, forecast,\nsimulation, mitigation, observability,\nguardrails, rag, admin, trulens] as Routers
+  [LangGraph orchestrator\nlanggraph_engine.py\nL1->L2->L3->L4->L5->L6->L7] as Graph
+  [Guardrails\nsrc/utils/guardrails.py] as Guardrails
+  [db_utils.py\n(single SQL access layer)] as DBUtils
+}
+
+package "Data Layer" {
+  database "SQLite\noutputs/supply_chain.db" as SQLite
+  database "ChromaDB\noutputs/chromadb" as Chroma
+  database "SQLite\ndata/trulens/trulens.db" as TruLensDB
+}
+
+package "MCP Servers" {
+  [news_mcp.py] as NewsMCP
+  [weather_mcp.py] as WeatherMCP
+}
+
+package "Observability" {
+  [TruLens\nwrapper.py / feedback_functions.py] as TruLens
+  [Langfuse tracing] as Langfuse
+}
+
+package "External Services" {
+  [OpenAI\n(GPT-4o / gpt-4.1-mini)] as OpenAI
+  [Nixtla TimeGPT\n(optional)] as Nixtla
+  [Google News RSS / GDELT] as NewsAPI
+  [Open-Meteo] as WeatherAPI
+  [FRED\n(freight indicators)] as FRED
+}
+
+UI --> Static : fetch relative /api/*
+Static --> Rewrite
+Rewrite --> FastAPI : HTTPS proxy
+FastAPI --> Routers
+Routers --> Graph
+Routers --> DBUtils
+Graph --> Guardrails
+Graph --> DBUtils
+Graph --> NewsMCP : L1 ingestion
+Graph --> WeatherMCP : L1 ingestion
+NewsMCP --> NewsAPI
+WeatherMCP --> WeatherAPI
+Graph --> FRED : freight signals
+Graph --> OpenAI : L2/L3/L4/L7 structured calls
+Graph --> Nixtla : L5 optional candidate model
+DBUtils --> SQLite
+Routers --> Chroma : RAG queries
+Guardrails --> DBUtils
+Routers --> TruLens
+TruLens --> TruLensDB
+TruLens --> OpenAI
+Graph ..> Langfuse : trace spans
+
+@enduml
