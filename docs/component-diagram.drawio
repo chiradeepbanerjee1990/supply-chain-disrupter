@@ -1,0 +1,175 @@
+<?xml version="1.0" ?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Component Diagram" id="component-diagram-1">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="Browser" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="260" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="React SPA
+LoginGate -&gt; App -&gt; Tabs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="2">
+          <mxGeometry x="20" y="40" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="Vercel (Frontend Host)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="360" y="40" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="Static build (Vite)
+src/frontend/dist" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="4">
+          <mxGeometry x="20" y="40" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="vercel.json rewrite
+/api/* -&gt; Railway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="4">
+          <mxGeometry x="20" y="120" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="Railway (Backend Host)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="260" height="440" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="FastAPI app
+src/api/main.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="7">
+          <mxGeometry x="20" y="40" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="Routers: pipeline, live_feed, risk,
+forecast, simulation, mitigation,
+observability, guardrails, rag, admin, trulens" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="7">
+          <mxGeometry x="20" y="120" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" value="LangGraph orchestrator
+langgraph_engine.py
+L1-&gt;L2-&gt;L3-&gt;L4-&gt;L5-&gt;L6-&gt;L7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="7">
+          <mxGeometry x="20" y="200" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="11" value="Guardrails
+src/utils/guardrails.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="7">
+          <mxGeometry x="20" y="280" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="db_utils.py
+(single SQL access layer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="7">
+          <mxGeometry x="20" y="360" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" value="Data Layer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="540" width="260" height="280" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" value="SQLite
+outputs/supply_chain.db" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="13">
+          <mxGeometry x="20" y="40" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" value="ChromaDB
+outputs/chromadb" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="13">
+          <mxGeometry x="20" y="120" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" value="SQLite
+data/trulens/trulens.db" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="13">
+          <mxGeometry x="20" y="200" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="17" value="MCP Servers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="360" y="540" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" value="news_mcp.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="17">
+          <mxGeometry x="20" y="40" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" value="weather_mcp.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="17">
+          <mxGeometry x="20" y="120" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="20" value="Observability" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="680" y="540" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="21" value="TruLens
+wrapper.py / feedback_functions.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="20">
+          <mxGeometry x="20" y="40" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="22" value="Langfuse tracing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="20">
+          <mxGeometry x="20" y="120" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="23" value="External Services" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="880" width="260" height="440" as="geometry"/>
+        </mxCell>
+        <mxCell id="24" value="OpenAI
+(GPT-4o / gpt-4.1-mini)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="23">
+          <mxGeometry x="20" y="40" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="25" value="Nixtla TimeGPT
+(optional)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="23">
+          <mxGeometry x="20" y="120" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="26" value="Google News RSS / GDELT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="23">
+          <mxGeometry x="20" y="200" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="27" value="Open-Meteo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="23">
+          <mxGeometry x="20" y="280" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="28" value="FRED
+(freight indicators)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="23">
+          <mxGeometry x="20" y="360" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="29" value="fetch relative /api/*" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="3" target="5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="30" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="5" target="6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="31" value="HTTPS proxy" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="6" target="8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="32" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="8" target="9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="33" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="9" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="34" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="9" target="12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="35" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="10" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="36" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="10" target="12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="37" value="L1 ingestion" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="10" target="18">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="38" value="L1 ingestion" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="10" target="19">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="39" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="18" target="26">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="40" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="19" target="27">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="41" value="freight signals" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="10" target="28">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="42" value="L2/L3/L4/L7 structured calls" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="10" target="24">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="43" value="L5 optional candidate model" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="10" target="25">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="44" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="12" target="14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="45" value="RAG queries" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="9" target="15">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="46" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="11" target="12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="47" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="9" target="21">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="48" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="21" target="16">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="49" value="" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;" edge="1" parent="1" source="21" target="24">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="50" value="trace spans" style="endArrow=block;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=10;dashed=1;" edge="1" parent="1" source="10" target="22">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
