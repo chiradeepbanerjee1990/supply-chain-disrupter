@@ -19,15 +19,19 @@ import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, LineChart, Line, X
 import { Play, RefreshCw } from "lucide-react";
 import { API_BASE_URL } from "./api/config";
 
-const BG = "#070D18";
-const PANEL = "#0B1629";
-const BORDER = "#1E293B";
+// Recharts' contentStyle/fill/stroke props take literal CSS values, but
+// CSS custom properties resolve fine there too — these read live from
+// theme.css's :root instead of duplicating hex values, so this file
+// tracks the theme instead of drifting from it.
+const BG = "var(--muted)";
+const PANEL = "var(--card)";
+const BORDER = "var(--border)";
 const TOOLTIP_STYLE = {
-  background: "#0B1629",
-  border: "1px solid #1E293B",
+  background: "var(--card)",
+  border: "1px solid var(--border)",
   borderRadius: 6,
   fontSize: 10,
-  color: "#94A3B8",
+  color: "var(--text-muted-strong)",
 };
 
 /** Format USD for Monte Carlo tiles — avoid showing $0.0M for mid four-figure risks. */
@@ -215,7 +219,7 @@ function expectedDropPct(series: ForecastPoint[]): number {
 }
 
 const MODEL_COLORS: Record<string, string> = {
-  actual: "#94A3B8",
+  actual: "#64748B",
   prophet: "#3B82F6",
   sarimax: "#10B981",
   timegpt: "#A78BFA",
@@ -253,7 +257,7 @@ function ModelComparisonSection({
   if (status === "error" || !data) {
     return (
       <div className="mt-3">
-        <div className="text-[10px] font-mono text-red-400 mb-1.5">
+        <div className="text-[10px] font-mono text-red-600 mb-1.5">
           Could not load model comparison for {skuId}.
         </div>
         <button
@@ -279,7 +283,7 @@ function ModelComparisonSection({
   return (
     <div className="mt-3 rounded p-3" style={{ background: BG, border: `1px solid ${BORDER}` }}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-semibold text-slate-300">Model Comparison (backtest)</span>
+        <span className="text-[11px] font-semibold text-slate-700">Model Comparison (backtest)</span>
         <div className="flex items-center gap-1.5">
           <span
             className="text-[9px] px-1.5 py-0.5 rounded font-mono capitalize"
@@ -302,7 +306,7 @@ function ModelComparisonSection({
         <LineChart data={chartData}>
           <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 8 }} interval={Math.max(0, Math.floor(chartData.length / 5))} />
           <YAxis tick={{ fill: "#475569", fontSize: 9 }} />
-          <CartesianGrid stroke="#1E293B" strokeDasharray="3 3" />
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
           <Tooltip contentStyle={TOOLTIP_STYLE} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           <Line type="monotone" dataKey="actual" stroke={MODEL_COLORS.actual} strokeWidth={2} dot={false} name="Actual" />
@@ -331,13 +335,13 @@ function ModelComparisonSection({
         <tbody>
           {Object.entries(data.scores).map(([model, s]) => (
             <tr key={model} style={{ borderTop: `1px solid ${BORDER}` }}>
-              <td className={`py-1 capitalize ${model === data.winner ? "text-emerald-400 font-bold" : "text-slate-400"}`}>
+              <td className={`py-1 capitalize ${model === data.winner ? "text-emerald-600 font-bold" : "text-slate-600"}`}>
                 {model}{model === data.winner ? " ✓" : ""}
               </td>
-              <td className="text-right py-1 text-slate-400">{s.rmse}</td>
-              <td className="text-right py-1 text-slate-400">{s.smape}%</td>
-              <td className="text-right py-1 text-slate-400">{s.mape}%</td>
-              <td className="text-right py-1 text-slate-400">{s.latency_sec}s</td>
+              <td className="text-right py-1 text-slate-600">{s.rmse}</td>
+              <td className="text-right py-1 text-slate-600">{s.smape}%</td>
+              <td className="text-right py-1 text-slate-600">{s.mape}%</td>
+              <td className="text-right py-1 text-slate-600">{s.latency_sec}s</td>
             </tr>
           ))}
         </tbody>
@@ -382,7 +386,7 @@ function EmptyPanel({ title, badge, message }: { title: string; badge: string; m
   return (
     <div className="rounded-lg p-4 flex flex-col" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-semibold text-slate-200">{title}</span>
+        <span className="text-sm font-semibold text-slate-900">{title}</span>
         <span
           className="text-[9px] px-2 py-0.5 rounded font-mono"
           style={{ background: "#818CF818", color: "#818CF8", border: "1px solid #818CF830" }}
@@ -418,7 +422,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
         {forecastStatus === "ready" && forecast ? (
           <div className="rounded-lg p-4 flex flex-col" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-semibold text-slate-200">Demand Forecasting — Prophet</span>
+              <span className="text-sm font-semibold text-slate-900">Demand Forecasting — Prophet</span>
               <div className="flex items-center gap-1.5">
                 <SkuIdBadge skuId={forecast.category} />
                 <ImpactDurationBadge days={forecast.impact_duration_days} />
@@ -438,7 +442,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                   className="text-[10px] px-2 py-0.5 rounded font-mono transition-all"
                   style={{
                     background: category === c ? "#3B82F620" : BG,
-                    color: category === c ? "#60A5FA" : "#475569",
+                    color: category === c ? "#1D4ED8" : "#475569",
                     border: `1px solid ${category === c ? "#3B82F640" : BORDER}`,
                   }}
                 >
@@ -447,7 +451,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
               ))}
             </div>
             <div className="flex items-baseline gap-2 mb-3">
-              <span className="text-3xl font-mono font-bold text-red-400">
+              <span className="text-3xl font-mono font-bold text-red-600">
                 {expectedDropPct(forecast.series)}%
               </span>
               <span className="text-slate-500 text-sm">expected demand drop</span>
@@ -456,24 +460,24 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
             {skuDetail && (
               <div className="grid grid-cols-4 gap-2 mb-3">
                 <div className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                  <div className="text-xs font-mono font-bold text-slate-200 capitalize">{skuDetail.model_selected}</div>
+                  <div className="text-xs font-mono font-bold text-slate-900 capitalize">{skuDetail.model_selected}</div>
                   <div className="text-[9px] text-slate-600 mt-0.5">Model Selected</div>
                 </div>
                 {skuDetail.stockout_prob !== null && (
                   <div className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                    <div className="text-xs font-mono font-bold text-slate-200">{(skuDetail.stockout_prob * 100).toFixed(1)}%</div>
+                    <div className="text-xs font-mono font-bold text-slate-900">{(skuDetail.stockout_prob * 100).toFixed(1)}%</div>
                     <div className="text-[9px] text-slate-600 mt-0.5">Stockout Prob (L5)</div>
                   </div>
                 )}
                 {skuDetail.mape_prophet_selected !== null && (
                   <div className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                    <div className="text-xs font-mono font-bold text-slate-200">{skuDetail.mape_prophet_selected.toFixed(1)}%</div>
+                    <div className="text-xs font-mono font-bold text-slate-900">{skuDetail.mape_prophet_selected.toFixed(1)}%</div>
                     <div className="text-[9px] text-slate-600 mt-0.5">MAPE (selected)</div>
                   </div>
                 )}
                 {skuDetail.mape_improvement_pct_vs_dataset_baseline !== null && (
                   <div className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                    <div className="text-xs font-mono font-bold text-emerald-400">
+                    <div className="text-xs font-mono font-bold text-emerald-600">
                       {skuDetail.mape_improvement_pct_vs_dataset_baseline.toFixed(1)}%
                     </div>
                     <div className="text-[9px] text-slate-600 mt-0.5">MAPE Improvement</div>
@@ -496,7 +500,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                 </defs>
                 <XAxis dataKey="day" tick={{ fill: "#475569", fontSize: 9 }} interval={4} />
                 <YAxis tick={{ fill: "#475569", fontSize: 9 }} />
-                <CartesianGrid stroke="#1E293B" strokeDasharray="3 3" />
+                <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Area type="monotone" dataKey="baseline" stroke="#3B82F6" fill="url(#baseG)" strokeWidth={2} name="Baseline" dot={false} />
                 <Area type="monotone" dataKey="adjusted" stroke="#EF4444" fill="url(#adjG)" strokeWidth={2} name="Disruption-Adjusted" dot={false} />
@@ -510,7 +514,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                     <span
                       key={r}
                       className="text-[10px] px-1.5 py-0.5 rounded font-mono"
-                      style={{ background: "#3B82F610", color: "#60A5FA", border: "1px solid #3B82F625" }}
+                      style={{ background: "#3B82F610", color: "#1D4ED8", border: "1px solid #3B82F625" }}
                     >
                       {r}
                     </span>
@@ -549,7 +553,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
         {simulationStatus === "ready" && simulation ? (
           <div className="rounded-lg p-4 flex flex-col" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-slate-200">Monte Carlo Simulation</span>
+              <span className="text-sm font-semibold text-slate-900">Monte Carlo Simulation</span>
               <div className="flex items-center gap-1.5">
                 <SkuIdBadge skuId={simulation.sku_id} />
                 <ImpactDurationBadge days={simulation.impact_duration_days} />
@@ -568,7 +572,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                 { label: "P90 Unmet Demand", v: `${simulation.p90}%` },
               ].map((m) => (
                 <div key={m.label} className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                  <div className="text-xl font-mono font-bold text-slate-100">{m.v}</div>
+                  <div className="text-xl font-mono font-bold text-slate-900">{m.v}</div>
                   <div className="text-[9px] text-slate-600 mt-0.5">{m.label}</div>
                 </div>
               ))}
@@ -577,7 +581,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
               <BarChart data={simulation.histogram}>
                 <XAxis dataKey="range" tick={{ fill: "#475569", fontSize: 9 }} />
                 <YAxis tick={{ fill: "#475569", fontSize: 9 }} />
-                <CartesianGrid stroke="#1E293B" strokeDasharray="3 3" />
+                <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Bar dataKey="count" fill="#F97316" radius={[3, 3, 0, 0]} opacity={0.85} name="Runs" />
                 <ReferenceLine
@@ -600,7 +604,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                   { label: "Revenue at Risk P90", v: simulation.revenue_at_risk_p90_usd },
                 ].map((m) => (
                   <div key={m.label} className="rounded p-3 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                    <div className="text-lg font-mono font-bold text-orange-400">{formatUsdRisk(m.v)}</div>
+                    <div className="text-lg font-mono font-bold text-orange-600">{formatUsdRisk(m.v)}</div>
                     <div className="text-[9px] text-slate-600 mt-0.5">{m.label}</div>
                   </div>
                 ))}
@@ -608,7 +612,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
             ) : (
               <div className="rounded p-3 mt-3" style={{ background: BG, border: `1px solid ${BORDER}` }}>
                 <div className="text-[10px] text-slate-600 mb-0.5">Revenue at Risk (P50)</div>
-                <div className="text-xl font-mono font-bold text-orange-400">
+                <div className="text-xl font-mono font-bold text-orange-600">
                   {formatUsdRisk(simulation.revenue_at_risk_usd)}
                 </div>
               </div>
@@ -624,7 +628,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                   .filter((m) => m.v !== null)
                   .map((m) => (
                     <div key={m.label} className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                      <div className="text-lg font-mono font-bold text-slate-200">{m.v!.toFixed(0)}</div>
+                      <div className="text-lg font-mono font-bold text-slate-900">{m.v!.toFixed(0)}</div>
                       <div className="text-[9px] text-slate-600 mt-0.5">{m.label}</div>
                     </div>
                   ))}
@@ -633,7 +637,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
 
             <div className="rounded p-3 mt-2" style={{ background: BG, border: `1px solid ${BORDER}` }}>
               <div className="text-[10px] text-slate-600 mb-0.5">Alternate Route</div>
-              <div className="text-xs font-mono text-blue-400">{simulation.alternate_route}</div>
+              <div className="text-xs font-mono text-blue-600">{simulation.alternate_route}</div>
               <div className="text-[9px] font-mono text-slate-700">config, not LLM</div>
             </div>
           </div>

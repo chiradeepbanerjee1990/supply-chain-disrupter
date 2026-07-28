@@ -40,7 +40,7 @@ export function DatabaseStatusCard() {
         <button
           onClick={() => mutate()}
           disabled={isRunning}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-semibold text-white transition-opacity disabled:opacity-50 disabled:cursor-not-allowed bg-secondary border border-primary/20"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-semibold text-secondary-foreground transition-opacity disabled:opacity-50 disabled:cursor-not-allowed bg-secondary border border-primary/20"
         >
           {isRunning ? <RefreshCw size={11} className="animate-spin" /> : <Database size={11} />}
           {isRunning ? "Building…" : db?.database_exists ? "Rebuild Database" : "Load Database"}

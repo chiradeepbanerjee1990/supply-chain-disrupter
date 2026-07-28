@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Activity, BarChart2, Shield, Eye, Database, Settings, Play,
-  Copy, Clock, Server, Map, RefreshCw, Wrench, Sparkles,
+  Copy, Clock, Server, Map, RefreshCw, Wrench, Sparkles, LogOut,
 } from "lucide-react";
 import { AgentNode } from "./components/AgentNode";
 import { TabPlaceholder } from "./components/TabPlaceholder";
@@ -16,6 +16,7 @@ import { TabTrulens } from "./TabTrulens";
 import { TabAdmin } from "./TabAdmin";
 import { usePipelineStatus } from "./hooks/usePipelineStatus";
 import { DemoScenarioInjector } from "./components/pipeline/DemoScenarioInjector";
+import { logout } from "./LoginGate";
 
 const TABS = [
   { icon: Activity, label: "Live Feed", day: 2 },
@@ -57,7 +58,7 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Top Status Bar */}
-      <div className="flex items-center gap-4 px-4 py-2 shrink-0 bg-panel border-b border-border">
+      <div className="flex items-center gap-4 px-4 py-2 shrink-0 bg-card border-b border-border">
         {/* Wordmark */}
         <div className="flex items-center gap-2 shrink-0 mr-1">
           <div className="w-6 h-6 rounded flex items-center justify-center bg-gradient-to-br from-primary to-accent">
@@ -117,10 +118,17 @@ export default function App() {
           <button
             onClick={() => setShowRunModal(true)}
             disabled={pipelineRunning}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-semibold text-white transition-opacity disabled:opacity-50 disabled:cursor-not-allowed bg-secondary border border-primary/20"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-semibold text-secondary-foreground transition-opacity disabled:opacity-50 disabled:cursor-not-allowed bg-secondary border border-primary/20"
           >
             {pipelineRunning ? <RefreshCw size={11} className="animate-spin" /> : <Play size={11} fill="white" />}
             {pipelineRunning ? "Running…" : "Run Pipeline"}
+          </button>
+
+          <button
+            onClick={logout}
+            className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Logout
           </button>
         </div>
       </div>
@@ -135,7 +143,7 @@ export default function App() {
       {/* Main Layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Icon Rail */}
-        <div className="flex flex-col items-center gap-1 py-3 shrink-0 w-12 bg-panel border-r border-border">
+        <div className="flex flex-col items-center gap-1 py-3 shrink-0 w-12 bg-card border-r border-border">
           {TABS.map((tab, i) => (
             <button
               key={i}
@@ -148,9 +156,12 @@ export default function App() {
               <tab.icon size={15} />
             </button>
           ))}
-          <div className="mt-auto">
+          <div className="mt-auto flex flex-col items-center gap-1">
             <button title="Settings" className="flex items-center justify-center w-9 h-9 rounded text-status-idle transition-colors hover:text-muted-foreground">
               <Settings size={15} />
+            </button>
+            <button title="Log out" onClick={logout} className="flex items-center justify-center w-9 h-9 rounded text-status-idle transition-colors hover:text-muted-foreground">
+              <LogOut size={15} />
             </button>
           </div>
         </div>
@@ -158,7 +169,7 @@ export default function App() {
         {/* Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Tab Bar */}
-          <div className="flex items-center gap-0.5 px-3 pt-2 shrink-0 bg-panel border-b border-border">
+          <div className="flex items-center gap-0.5 px-3 pt-2 shrink-0 bg-card border-b border-border">
             {TABS.map((tab, i) => (
               <button
                 key={i}
