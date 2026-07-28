@@ -10,6 +10,7 @@ export type PipelineMode = "live" | "demo" | "replay";
 export type DemoScenarioId =
   | "taiwan_earthquake"
   | "red_sea_crisis"
+  | "suez_canal_blockage"
   | "guardrail_demo"
   | "clean_baseline";
 
@@ -54,10 +55,11 @@ export interface DemoScenarioCard {
 }
 
 // Mirrors src/agents/demo_injector.py's SCENARIO_METADATA — kept in sync by
-// hand since there are only 4, fixed scenarios (no /scenarios list endpoint).
+// hand since there are only 5, fixed scenarios (no /scenarios list endpoint).
 export const DEMO_SCENARIOS: DemoScenarioCard[] = [
   { id: "taiwan_earthquake", label: "Taiwan Earthquake", severity: "CRITICAL" },
   { id: "red_sea_crisis", label: "Red Sea Crisis", severity: "HIGH" },
+  { id: "suez_canal_blockage", label: "Suez Canal Blockage (Ever Given)", severity: "HIGH" },
   { id: "guardrail_demo", label: "Prompt-Injection Guardrail Demo", severity: "MEDIUM" },
   { id: "clean_baseline", label: "Clean Baseline", severity: "LOW" },
 ];

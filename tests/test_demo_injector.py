@@ -31,15 +31,22 @@ def test_pick_scenario_record_falls_back_to_broad_regional_pool():
     # returns, so it must NOT silently fall through to "any region" (tier
     # 3) — it should first retry with the region hint still applied, just
     # against the broader Electronics-inclusive pool.
+    # fetch_scenario_options_by_sku_ids mocked empty: red_sea_crisis is in
+    # _PREFERRED_SKU_IDS, but an empty result must fall through to the
+    # region-tier pool under test here, not silently short-circuit it.
     with patch(
-        "src.agents.demo_injector.fetch_scenario_options",
-        return_value=[_ANY_ROW],  # no West Asia/North Africa rows here
+        "src.agents.demo_injector.fetch_scenario_options_by_sku_ids",
+        return_value=[],
     ):
         with patch(
-            "src.agents.demo_injector.fetch_scenario_options_for_regions",
-            return_value=[_BROAD_ROW],
-        ) as mock_broad:
-            record = _pick_scenario_record("red_sea_crisis")
+            "src.agents.demo_injector.fetch_scenario_options",
+            return_value=[_ANY_ROW],  # no West Asia/North Africa rows here
+        ):
+            with patch(
+                "src.agents.demo_injector.fetch_scenario_options_for_regions",
+                return_value=[_BROAD_ROW],
+            ) as mock_broad:
+                record = _pick_scenario_record("red_sea_crisis")
 
     assert record == _BROAD_ROW
     mock_broad.assert_called_once_with(["West Asia", "North Africa"])
@@ -47,14 +54,18 @@ def test_pick_scenario_record_falls_back_to_broad_regional_pool():
 
 def test_pick_scenario_record_falls_back_to_any_region_when_broad_pool_also_empty():
     with patch(
-        "src.agents.demo_injector.fetch_scenario_options",
-        return_value=[_ANY_ROW],
+        "src.agents.demo_injector.fetch_scenario_options_by_sku_ids",
+        return_value=[],
     ):
         with patch(
-            "src.agents.demo_injector.fetch_scenario_options_for_regions",
-            return_value=[],
+            "src.agents.demo_injector.fetch_scenario_options",
+            return_value=[_ANY_ROW],
         ):
-            record = _pick_scenario_record("red_sea_crisis")
+            with patch(
+                "src.agents.demo_injector.fetch_scenario_options_for_regions",
+                return_value=[],
+            ):
+                record = _pick_scenario_record("red_sea_crisis")
 
     assert record == _ANY_ROW  # tier 3: no region match anywhere, pick by history
 
@@ -75,14 +86,18 @@ def test_pick_scenario_record_clean_baseline_has_no_hint_skips_broad_tier():
 
 def test_build_demo_payload_red_sea_crisis_resolves_to_real_region_via_broad_pool():
     with patch(
-        "src.agents.demo_injector.fetch_scenario_options",
-        return_value=[_ANY_ROW],
+        "src.agents.demo_injector.fetch_scenario_options_by_sku_ids",
+        return_value=[],
     ):
         with patch(
-            "src.agents.demo_injector.fetch_scenario_options_for_regions",
-            return_value=[_BROAD_ROW],
+            "src.agents.demo_injector.fetch_scenario_options",
+            return_value=[_ANY_ROW],
         ):
-            payload = build_demo_payload("red_sea_crisis", run_id="test-run")
+            with patch(
+                "src.agents.demo_injector.fetch_scenario_options_for_regions",
+                return_value=[_BROAD_ROW],
+            ):
+                payload = build_demo_payload("red_sea_crisis", run_id="test-run")
 
     assert payload["affected_port"] == "West Asia"
     assert payload["sku"] == "ASUS ROG Laptop"
