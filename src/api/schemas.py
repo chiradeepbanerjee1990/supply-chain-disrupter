@@ -25,7 +25,8 @@ class PipelineStatus(BaseModel):
 
 
 DemoScenarioId = Literal[
-    "taiwan_earthquake", "red_sea_crisis", "guardrail_demo", "clean_baseline"
+    "taiwan_earthquake", "red_sea_crisis", "suez_canal_blockage",
+    "guardrail_demo", "clean_baseline",
 ]
 
 

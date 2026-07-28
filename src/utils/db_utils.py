@@ -1010,6 +1010,7 @@ def fetch_scenario_options() -> List[Dict[str, Any]]:
         SELECT
             port,
             sku,
+            sku_id,
             MAX(event_date) AS event_date,
             COUNT(DISTINCT event_date) AS history_points
         FROM daily_records
@@ -1018,7 +1019,7 @@ def fetch_scenario_options() -> List[Dict[str, Any]]:
           AND category_name IN (
               'Cameras', 'Computers', 'Consumer Electronics', 'Video Games'
           )
-        GROUP BY port, sku
+        GROUP BY port, sku, sku_id
         HAVING COUNT(DISTINCT event_date) >= 3
         ORDER BY history_points DESC, port, sku
         """
@@ -1049,6 +1050,7 @@ def fetch_scenario_options_for_regions(regions: List[str]) -> List[Dict[str, Any
         SELECT
             port,
             sku,
+            sku_id,
             MAX(event_date) AS event_date,
             COUNT(DISTINCT event_date) AS history_points
         FROM daily_records
@@ -1057,11 +1059,47 @@ def fetch_scenario_options_for_regions(regions: List[str]) -> List[Dict[str, Any
           AND category_name IN (
               'Cameras', 'Computers', 'Consumer Electronics', 'Video Games', 'Electronics'
           )
-        GROUP BY port, sku
+        GROUP BY port, sku, sku_id
         HAVING COUNT(DISTINCT event_date) >= 3
         ORDER BY history_points DESC, port, sku
         """,
         tuple(regions),
+    )
+    return [dict(row) for row in rows]
+
+
+def fetch_scenario_options_by_sku_ids(sku_ids: List[str]) -> List[Dict[str, Any]]:
+    """Like fetch_scenario_options_for_regions(), but filtered by ops_kpi
+    sku_id crosswalk instead of region — any port, broader 'Electronics'
+    category included. Used only by demo_injector.py's _PREFERRED_SKU_IDS
+    path, to steer a demo scenario onto a (port, sku) combo whose crosswalked
+    sku_id has substantial ops_kpi history (L5's live forecast reads
+    active_record.sku_id — see forecast/agent.py:demand_forecasting_agent),
+    without touching the sku field itself (still a real daily_records
+    product name, so fetch_daily_record()'s exact-match lookup still works).
+    """
+    if not sku_ids:
+        return []
+    placeholders = ",".join("?" for _ in sku_ids)
+    rows = execute_query(
+        f"""
+        SELECT
+            port,
+            sku,
+            sku_id,
+            MAX(event_date) AS event_date,
+            COUNT(DISTINCT event_date) AS history_points
+        FROM daily_records
+        WHERE sku_id IN ({placeholders})
+          AND sku IS NOT NULL
+          AND category_name IN (
+              'Cameras', 'Computers', 'Consumer Electronics', 'Video Games', 'Electronics'
+          )
+        GROUP BY port, sku, sku_id
+        HAVING COUNT(DISTINCT event_date) >= 3
+        ORDER BY history_points DESC, port, sku
+        """,
+        tuple(sku_ids),
     )
     return [dict(row) for row in rows]
 
