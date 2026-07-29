@@ -15,6 +15,7 @@ import { ChevronDown } from "lucide-react";
 import type { RiskClassification } from "../../types/riskClassification";
 import { RiskBadge } from "./RiskBadge";
 import { CitationChip } from "./CitationChip";
+import { HeroStat } from "../HeroStat";
 import { useAnimateOnChange, useCountUp } from "../../utils/animation";
 
 const STAGGER_MS = 90;
@@ -86,10 +87,13 @@ export function SignalEnsembleRow({ data }: { data: RiskClassification }) {
     <div className="grid grid-cols-3 gap-3">
       {/* Rule-Based */}
       <div
-        className={`rounded-lg p-4 bg-card border border-border${staggerAnim(shouldAnimate, 0).className}`}
+        className={`rounded-panel shadow-panel p-4 bg-card border border-border${staggerAnim(shouldAnimate, 0).className}`}
         style={staggerAnim(shouldAnimate, 0).style}
       >
         <div className="text-xs font-semibold text-primary mb-3">Rule-Based Composite</div>
+        <div className="mb-3">
+          <HeroStat size="md" value={displayComposite.toFixed(3)} label="composite score" />
+        </div>
         {COMPONENT_WEIGHTS.map((c) => (
           <RuleComponentRow
             key={c.label}
@@ -99,17 +103,14 @@ export function SignalEnsembleRow({ data }: { data: RiskClassification }) {
             grown={grown}
           />
         ))}
-        <div className="mt-3 pt-3 flex justify-between items-center border-t border-border">
-          <span className="text-[10px] font-mono text-muted-foreground">
-            composite = {displayComposite.toFixed(3)}
-          </span>
+        <div className="mt-3 pt-3 flex justify-end items-center border-t border-border">
           <RiskBadge level={rule_signal.escalated_label} size="sm" />
         </div>
       </div>
 
       {/* DistilBERT */}
       <div
-        className={`rounded-lg p-4 flex flex-col bg-card border border-border${staggerAnim(shouldAnimate, 1).className}`}
+        className={`rounded-panel shadow-panel p-4 flex flex-col bg-card border border-border${staggerAnim(shouldAnimate, 1).className}`}
         style={staggerAnim(shouldAnimate, 1).style}
       >
         <div className="text-xs font-semibold text-accent mb-3">Fine-Tuned DistilBERT</div>
@@ -145,7 +146,7 @@ export function SignalEnsembleRow({ data }: { data: RiskClassification }) {
 
       {/* GPT-4o + RAG */}
       <div
-        className={`rounded-lg p-4 bg-card border border-border${staggerAnim(shouldAnimate, 2).className}`}
+        className={`rounded-panel shadow-panel p-4 bg-card border border-border${staggerAnim(shouldAnimate, 2).className}`}
         style={staggerAnim(shouldAnimate, 2).style}
       >
         <div className="text-xs font-semibold text-risk-low mb-3">GPT-4o + RAG</div>

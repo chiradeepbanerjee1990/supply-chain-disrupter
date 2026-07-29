@@ -132,6 +132,62 @@ def test_record_llm_generation_writes_llm_call_log():
 
 
 # ---------------------------------------------------------------------------
+# 5b. _clean_prompt_preview — strips decorative separators, stays readable
+# ---------------------------------------------------------------------------
+
+def test_prompt_log_preview_is_readable_string():
+    """prompt_preview must be a non-empty, truncated human-readable string —
+    not a run of box-drawing separator characters or a dict repr."""
+    from src.utils.observability import _clean_prompt_preview
+
+    raw = (
+        "\n═══════════════════════════════════════════════════════\n"
+        "SQLITE RECORD DATA (lite_master table — exact values)\n"
+        "═══════════════════════════════════════════════════════\n"
+        "order_id: 4471, sku: SKU-2201, region: APAC\n"
+    )
+    preview = _clean_prompt_preview(raw, length=80)
+
+    assert preview
+    assert "═" not in preview
+    assert preview.startswith("SQLITE RECORD DATA")
+
+    assert _clean_prompt_preview("") == ""
+
+    long_plain = "a" * 300
+    truncated = _clean_prompt_preview(long_plain, length=200)
+    assert truncated.endswith("...")
+    assert len(truncated) == 203
+
+
+def test_record_llm_generation_strips_separators_from_preview():
+    """record_llm_generation() must pass a cleaned preview (no separator
+    characters) through to insert_llm_call_log, for every agent's prompt."""
+    from src.utils import observability as obs
+
+    user_message = "═══════════\nSQLITE RECORD DATA (lite_master table)\n═══════════\nfoo: bar"
+
+    with patch("src.utils.db_utils.insert_llm_call_log") as mock_insert:
+        obs.record_llm_generation(
+            None, None,
+            run_id="run-002",
+            agent_name="L2_news",
+            model="gpt-4.1-mini",
+            system_prompt="sys",
+            user_message=user_message,
+            parsed_output={"result": "ok"},
+            input_tokens=500,
+            output_tokens=200,
+            latency_ms=320.0,
+            status="success",
+        )
+
+    kwargs = mock_insert.call_args.kwargs
+    assert "═" not in kwargs["prompt_preview"]
+    assert "SQLITE RECORD DATA" in kwargs["prompt_preview"]
+
+
+# ---------------------------------------------------------------------------
 # 6. calculate_cost_usd — known model
 # ---------------------------------------------------------------------------
 

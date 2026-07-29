@@ -16,9 +16,11 @@
  * hover/touch and is skipped entirely under prefers-reduced-motion.
  */
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { Newspaper } from "lucide-react";
 import { useLiveFeedNews } from "../../hooks/useLiveFeed";
 import type { NewsHeadline } from "../../types/liveFeed";
 import { prefersReducedMotion } from "../../utils/animation";
+import { EmptyState } from "../EmptyState";
 
 // Ticker-like auto-scroll pace so the list reads as "always running" (per
 // user request — like a live news ticker). Bumped up from an initial 16 —
@@ -172,7 +174,7 @@ export function NewsPanel() {
   const scrollRef = useAutoScrollTicker(pausedRef);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg bg-card border border-border">
+    <div className="flex flex-col overflow-hidden rounded-panel shadow-panel bg-card border border-border">
       <div className="px-3 py-2.5 flex items-center justify-between shrink-0 border-b border-border">
         <span className="text-xs font-semibold text-foreground">
           News RSS — 14 parallel queries
@@ -209,9 +211,7 @@ export function NewsPanel() {
           </div>
         )}
         {data && data.items.length === 0 && (
-          <div className="text-xs text-muted-foreground px-1">
-            No news ingested yet — click "Refresh Live Data" above.
-          </div>
+          <EmptyState icon={Newspaper} title="No news ingested yet" subtitle='Click "Refresh Live Data" above.' />
         )}
 
         {groups.map((g) => (

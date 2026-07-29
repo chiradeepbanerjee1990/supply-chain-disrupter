@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Table2 } from "lucide-react";
 import { useAdminTableRows, useAdminTables } from "../../hooks/useAdmin";
+import { Panel } from "../Panel";
 
 const DEFAULT_PAGE_SIZE = 50;
 
@@ -42,15 +43,15 @@ export function DataExplorer() {
 
   if (tables.length === 0) {
     return (
-      <div className="rounded-lg p-4 bg-card border border-border text-xs text-muted-foreground">
+      <Panel className="text-xs text-muted-foreground">
         No tables found — load the database from Data Management first.
-      </div>
+      </Panel>
     );
   }
 
   return (
     <div className="space-y-3">
-      <div className="rounded-lg p-4 bg-card border border-border">
+      <Panel>
         <div className="flex items-center gap-2 mb-3">
           <Table2 size={14} className="text-muted-foreground" />
           <select
@@ -140,7 +141,7 @@ export function DataExplorer() {
             </div>
           </>
         )}
-      </div>
+      </Panel>
     </div>
   );
 }

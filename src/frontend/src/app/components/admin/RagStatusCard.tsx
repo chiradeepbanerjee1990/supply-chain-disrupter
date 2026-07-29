@@ -5,9 +5,11 @@
  * building both the monolithic electronics_supply_chain_knowledge
  * collection and the three named collections that feed Screen 6.
  */
-import { RefreshCw, Database } from "lucide-react";
+import { RefreshCw, Database, FolderSearch } from "lucide-react";
 import { useAdminStatus, useBuildRag } from "../../hooks/useAdmin";
 import { ElapsedSince } from "./ElapsedSince";
+import { Panel } from "../Panel";
+import { EmptyState } from "../EmptyState";
 
 const JOB_LABEL: Record<string, string> = {
   idle: "Not yet built this session",
@@ -33,12 +35,14 @@ export function RagStatusCard() {
   const totalDocs = corpus.reduce((sum, c) => sum + c.docs, 0);
 
   return (
-    <div className="rounded-lg p-4 bg-card border border-border">
-      <div className="flex items-center justify-between mb-3">
+    <Panel
+      title={
         <div className="flex items-center gap-2">
           <Database size={14} className="text-accent" />
           <span className="text-sm font-semibold text-foreground">RAG Database (ChromaDB)</span>
         </div>
+      }
+      rightContent={
         <div className="flex items-center gap-2">
           <button
             onClick={() => mutate(false)}
@@ -57,8 +61,8 @@ export function RagStatusCard() {
             Rebuild from Scratch
           </button>
         </div>
-      </div>
-
+      }
+    >
       {isLoading && <div className="text-xs text-muted-foreground">Loading status…</div>}
 
       {job && (
@@ -89,12 +93,13 @@ export function RagStatusCard() {
           </div>
         ))}
         {!isLoading && corpus.length === 0 && (
-          <div className="text-xs text-muted-foreground">
-            No collections found — click "Create RAG Database" to embed the Excel workbook,
-            mitigation playbooks, and data/raw/RAG_data/ reports into ChromaDB.
-          </div>
+          <EmptyState
+            icon={FolderSearch}
+            title="No collections found"
+            subtitle='Click "Create RAG Database" to embed the Excel workbook, mitigation playbooks, and data/raw/RAG_data/ reports into ChromaDB.'
+          />
         )}
       </div>
-    </div>
+    </Panel>
   );
 }

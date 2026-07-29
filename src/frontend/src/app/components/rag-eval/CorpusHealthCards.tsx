@@ -9,6 +9,7 @@
 import { useRagCorpus } from "../../hooks/useRagEval";
 import { useCountUp } from "../../utils/animation";
 import type { CorpusHealth } from "../../types/ragEval";
+import { Panel } from "../Panel";
 
 const COLLECTION_ORDER = ["historical_precedents", "export_control_corpus", "india_sourcing_corpus"];
 
@@ -53,15 +54,12 @@ export function CorpusHealthCards() {
   );
 
   return (
-    <div className="rounded-lg p-4 bg-card border border-border">
-      <div className="text-xs font-semibold text-muted-strong mb-3">
-        Corpus Health — 3 ChromaDB Collections
-      </div>
+    <Panel title="Corpus Health — 3 ChromaDB Collections">
       <div className="space-y-2">
         {ordered.map((c) => (
           <CorpusCard key={c.name} c={c} />
         ))}
       </div>
-    </div>
+    </Panel>
   );
 }

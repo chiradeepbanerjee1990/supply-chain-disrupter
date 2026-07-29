@@ -7,6 +7,8 @@
 import { Database, RefreshCw } from "lucide-react";
 import { useAdminStatus, useBuildDatabase } from "../../hooks/useAdmin";
 import { ElapsedSince } from "./ElapsedSince";
+import { Panel } from "../Panel";
+import { HeroStat } from "../HeroStat";
 
 const JOB_LABEL: Record<string, string> = {
   idle: "Not yet built this session",
@@ -31,12 +33,14 @@ export function DatabaseStatusCard() {
   const isRunning = job?.status === "running" || isPending;
 
   return (
-    <div className="rounded-lg p-4 bg-card border border-border">
-      <div className="flex items-center justify-between mb-3">
+    <Panel
+      title={
         <div className="flex items-center gap-2">
           <Database size={14} className="text-primary" />
           <span className="text-sm font-semibold text-foreground">SQLite Database</span>
         </div>
+      }
+      rightContent={
         <button
           onClick={() => mutate()}
           disabled={isRunning}
@@ -45,8 +49,8 @@ export function DatabaseStatusCard() {
           {isRunning ? <RefreshCw size={11} className="animate-spin" /> : <Database size={11} />}
           {isRunning ? "Building…" : db?.database_exists ? "Rebuild Database" : "Load Database"}
         </button>
-      </div>
-
+      }
+    >
       {isLoading && <div className="text-xs text-muted-foreground">Loading status…</div>}
 
       {job && (
@@ -64,15 +68,21 @@ export function DatabaseStatusCard() {
       )}
 
       {db?.database_exists ? (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] font-mono text-muted-strong">
-          <div>lite_master rows: {db.tables?.lite_master ?? "—"}</div>
-          <div>ops_kpi rows: {db.tables?.ops_kpi ?? "—"}</div>
-          <div>semiconductor_signals: {db.tables?.semiconductor_signals ?? "—"}</div>
-          <div>daily_records: {db.tables?.daily_records ?? "—"}</div>
-          <div>unique products: {db.unique_products ?? "—"}</div>
-          <div>size: {db.size_mb != null ? `${db.size_mb} MB` : "—"}</div>
-          <div className="col-span-2">date range: {db.date_range ?? "—"}</div>
-          <div className="col-span-2">categories: {(db.categories ?? []).join(", ") || "—"}</div>
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+          <HeroStat size="sm" label="lite_master rows" value={String(db.tables?.lite_master ?? "—")} />
+          <HeroStat size="sm" label="ops_kpi rows" value={String(db.tables?.ops_kpi ?? "—")} />
+          <HeroStat size="sm" label="semiconductor_signals" value={String(db.tables?.semiconductor_signals ?? "—")} />
+          <HeroStat size="sm" label="daily_records" value={String(db.tables?.daily_records ?? "—")} />
+          <HeroStat size="sm" label="unique products" value={String(db.unique_products ?? "—")} />
+          <HeroStat size="sm" label="size" value={db.size_mb != null ? `${db.size_mb} MB` : "—"} />
+          <div className="col-span-3">
+            <div className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">date range</div>
+            <div className="text-xs font-mono text-foreground">{db.date_range ?? "—"}</div>
+          </div>
+          <div className="col-span-3">
+            <div className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">categories</div>
+            <div className="text-xs font-mono text-foreground">{(db.categories ?? []).join(", ") || "—"}</div>
+          </div>
         </div>
       ) : (
         !isLoading && (
@@ -82,6 +92,6 @@ export function DatabaseStatusCard() {
           </div>
         )
       )}
-    </div>
+    </Panel>
   );
 }

@@ -9,7 +9,7 @@ import { Lock } from "lucide-react";
 
 export function EscalationGuardPanel() {
   return (
-    <div className="rounded-lg p-4 bg-card border border-risk-critical/35">
+    <div className="rounded-panel shadow-panel p-4 bg-card border border-risk-critical/35">
       <div className="flex items-center gap-2 mb-2">
         <Lock size={13} className="text-risk-critical shrink-0" />
         <span className="text-xs font-semibold text-risk-critical">
