@@ -16,8 +16,11 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Legend } from "recharts";
-import { Play, RefreshCw } from "lucide-react";
+import { Play, RefreshCw, TrendingUp, Dices } from "lucide-react";
 import { API_BASE_URL } from "./api/config";
+import { Panel } from "./components/Panel";
+import { HeroStat } from "./components/HeroStat";
+import { EmptyState } from "./components/EmptyState";
 
 // Recharts' contentStyle/fill/stroke props take literal CSS values, but
 // CSS custom properties resolve fine there too — these read live from
@@ -382,9 +385,19 @@ export function ImpactDurationBadge({ days }: { days: number | null | undefined 
   );
 }
 
-function EmptyPanel({ title, badge, message }: { title: string; badge: string; message: string }) {
+function EmptyPanel({
+  title,
+  badge,
+  message,
+  icon,
+}: {
+  title: string;
+  badge: string;
+  message: string;
+  icon: typeof TrendingUp;
+}) {
   return (
-    <div className="rounded-lg p-4 flex flex-col" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
+    <Panel className="flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-semibold text-slate-900">{title}</span>
         <span
@@ -394,10 +407,10 @@ function EmptyPanel({ title, badge, message }: { title: string; badge: string; m
           {badge}
         </span>
       </div>
-      <div className="flex-1 flex items-center justify-center text-[11px] text-slate-600 text-center px-6">
-        {message}
+      <div className="flex-1 flex items-center justify-center">
+        <EmptyState icon={icon} title={message} />
       </div>
-    </div>
+    </Panel>
   );
 }
 
@@ -420,7 +433,7 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
       <div className="grid grid-cols-2 gap-3 h-full">
         {/* Prophet */}
         {forecastStatus === "ready" && forecast ? (
-          <div className="rounded-lg p-4 flex flex-col" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
+          <Panel className="flex flex-col">
             <div className="flex items-center justify-between mb-1">
               <span className="text-sm font-semibold text-slate-900">Demand Forecasting — Prophet</span>
               <div className="flex items-center gap-1.5">
@@ -465,29 +478,40 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                 </div>
                 {skuDetail.stockout_prob !== null && (
                   <div className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                    <div className="text-xs font-mono font-bold text-slate-900">{(skuDetail.stockout_prob * 100).toFixed(1)}%</div>
-                    <div className="text-[9px] text-slate-600 mt-0.5">Stockout Prob (L5)</div>
+                    <HeroStat
+                      size="sm"
+                      value={`${(skuDetail.stockout_prob * 100).toFixed(1)}%`}
+                      label="Stockout Prob (L5)"
+                      status={skuDetail.stockout_prob >= 0.5 ? "fail" : "neutral"}
+                    />
                   </div>
                 )}
                 {skuDetail.mape_prophet_selected !== null && (
                   <div className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                    <div className="text-xs font-mono font-bold text-slate-900">{skuDetail.mape_prophet_selected.toFixed(1)}%</div>
-                    <div className="text-[9px] text-slate-600 mt-0.5">MAPE (selected)</div>
+                    <HeroStat size="sm" value={`${skuDetail.mape_prophet_selected.toFixed(1)}%`} label="MAPE (selected)" />
                   </div>
                 )}
                 {skuDetail.mape_improvement_pct_vs_dataset_baseline !== null && (
                   <div className="rounded p-2 text-center" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                    <div className="text-xs font-mono font-bold text-emerald-600">
-                      {skuDetail.mape_improvement_pct_vs_dataset_baseline.toFixed(1)}%
-                    </div>
-                    <div className="text-[9px] text-slate-600 mt-0.5">MAPE Improvement</div>
+                    <HeroStat
+                      size="sm"
+                      value={`${skuDetail.mape_improvement_pct_vs_dataset_baseline.toFixed(1)}%`}
+                      label="MAPE Improvement"
+                      status="pass"
+                    />
                   </div>
                 )}
               </div>
             )}
 
+            {/* Both series are L5's forecast horizon (no historical/actual
+                portion and no yhat_lower/yhat_upper survive past agent.py's
+                predict() call — see Pass 2 report), so this shows baseline
+                vs. disruption-adjusted demand only: solid lines, real
+                gridlines, date-axis labels, and a legend replace the
+                near-flat static-band look. */}
             <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={forecast.series}>
+              <AreaChart data={forecast.series} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
                 <defs>
                   <linearGradient id="baseG" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.18} />
@@ -498,12 +522,24 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                     <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="day" tick={{ fill: "#475569", fontSize: 9 }} interval={4} />
-                <YAxis tick={{ fill: "#475569", fontSize: 9 }} />
                 <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fill: "#475569", fontSize: 9 }}
+                  interval={Math.max(0, Math.floor(forecast.series.length / 6))}
+                  tickLine={false}
+                />
+                <YAxis tick={{ fill: "#475569", fontSize: 9 }} tickLine={false} width={40} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Area type="monotone" dataKey="baseline" stroke="#3B82F6" fill="url(#baseG)" strokeWidth={2} name="Baseline" dot={false} />
-                <Area type="monotone" dataKey="adjusted" stroke="#EF4444" fill="url(#adjG)" strokeWidth={2} name="Disruption-Adjusted" dot={false} />
+                <Legend wrapperStyle={{ fontSize: 10 }} iconSize={9} />
+                <Area
+                  type="monotone" dataKey="baseline" stroke="#3B82F6" fill="url(#baseG)"
+                  strokeWidth={2} name="Baseline" dot={false}
+                />
+                <Area
+                  type="monotone" dataKey="adjusted" stroke="#EF4444" fill="url(#adjG)"
+                  strokeWidth={2} strokeDasharray="5 4" name="Disruption-Adjusted" dot={false}
+                />
               </AreaChart>
             </ResponsiveContainer>
 
@@ -536,22 +572,23 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
                 ? "L5 skipped for this run (insufficient ops_kpi history) — fallback series shown"
                 : `SKU ${forecast.category} · Ops KPI 2023–2025`}
             </div>
-          </div>
+          </Panel>
         ) : forecastStatus === "missing" ? (
           <EmptyPanel
             title="Demand Forecasting — Prophet"
             badge="Optional · L5"
             message="No forecast snapshot for this run yet. Run the pipeline first."
+            icon={TrendingUp}
           />
         ) : forecastStatus === "error" ? (
-          <EmptyPanel title="Demand Forecasting — Prophet" badge="Optional · L5" message="Could not load forecast data." />
+          <EmptyPanel title="Demand Forecasting — Prophet" badge="Optional · L5" message="Could not load forecast data." icon={TrendingUp} />
         ) : (
-          <EmptyPanel title="Demand Forecasting — Prophet" badge="Optional · L5" message="Loading…" />
+          <EmptyPanel title="Demand Forecasting — Prophet" badge="Optional · L5" message="Loading…" icon={TrendingUp} />
         )}
 
         {/* Monte Carlo */}
         {simulationStatus === "ready" && simulation ? (
-          <div className="rounded-lg p-4 flex flex-col" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
+          <Panel className="flex flex-col">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-slate-900">Monte Carlo Simulation</span>
               <div className="flex items-center gap-1.5">
@@ -640,17 +677,18 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
               <div className="text-xs font-mono text-blue-600">{simulation.alternate_route}</div>
               <div className="text-[9px] font-mono text-slate-700">config, not LLM</div>
             </div>
-          </div>
+          </Panel>
         ) : simulationStatus === "missing" ? (
           <EmptyPanel
             title="Monte Carlo Simulation"
             badge="Optional · L6"
             message="No simulation snapshot for this run yet. Run the pipeline first."
+            icon={Dices}
           />
         ) : simulationStatus === "error" ? (
-          <EmptyPanel title="Monte Carlo Simulation" badge="Optional · L6" message="Could not load simulation data." />
+          <EmptyPanel title="Monte Carlo Simulation" badge="Optional · L6" message="Could not load simulation data." icon={Dices} />
         ) : (
-          <EmptyPanel title="Monte Carlo Simulation" badge="Optional · L6" message="Loading…" />
+          <EmptyPanel title="Monte Carlo Simulation" badge="Optional · L6" message="Loading…" icon={Dices} />
         )}
       </div>
     </div>

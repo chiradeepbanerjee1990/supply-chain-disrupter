@@ -7,6 +7,7 @@
  * _reference/App.mockup.tsx:990-1009.
  */
 import { ArrowRight } from "lucide-react";
+import { Panel } from "../Panel";
 
 const STAGES = [
   { label: "bi-encoder", detail: "all-MiniLM-L6-v2", out: "top-10" },
@@ -16,8 +17,7 @@ const STAGES = [
 
 export function RetrievalPipelineDiagram() {
   return (
-    <div className="rounded-lg p-4 bg-card border border-border">
-      <div className="text-xs font-semibold text-muted-strong mb-3">Retrieval Pipeline</div>
+    <Panel title="Retrieval Pipeline">
       {/* No animation on this row, including the "LLM context" box — this
           is a static architecture-reference diagram (see header comment),
           not a live-state indicator. A prior pass added an ambient dot that
@@ -35,6 +35,6 @@ export function RetrievalPipelineDiagram() {
           </div>
         ))}
       </div>
-    </div>
+    </Panel>
   );
 }

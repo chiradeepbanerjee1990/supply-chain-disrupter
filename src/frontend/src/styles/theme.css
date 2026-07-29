@@ -54,6 +54,7 @@
   --radius-panel: 0.875rem;
   --radius-btn: 0.625rem;
   --radius-pill: 999px;
+  --shadow-panel: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .dark {
@@ -162,6 +163,7 @@
   --radius-panel: var(--radius-panel);
   --radius-btn: var(--radius-btn);
   --radius-pill: var(--radius-pill);
+  --shadow-panel: var(--shadow-panel);
 
   /* Motion pass (Screens 1/2/6) — extends design.md §1.5's ping/pulse/
      fadeInStagger token set. fadeInStagger itself was documented but never

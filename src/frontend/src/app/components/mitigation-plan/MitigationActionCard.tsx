@@ -17,7 +17,7 @@ const ACTION_TYPE_LABEL: Record<MitigationRankedAction["action_type"], string> =
 
 export function MitigationActionCard({ action }: { action: MitigationRankedAction }) {
   return (
-    <article className="rounded-panel p-4 bg-card border border-border">
+    <article className="rounded-panel shadow-panel p-4 bg-card border border-border">
       <div className="flex gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/10 font-mono text-sm font-bold text-primary">
           {action.rank}

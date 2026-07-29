@@ -8,16 +8,24 @@
  */
 import { RefreshCw } from "lucide-react";
 import { useLiveFeedGantt } from "../../hooks/useLiveFeed";
+import { Panel } from "../Panel";
+
+// Evenly spaced tick marks across [0, totalDuration] — 5 ticks reads clean
+// at the strip's typical width without crowding short (<10s) runs.
+const TICK_COUNT = 5;
 
 export function GanttStrip({ runId }: { runId?: string }) {
   const { data, isLoading, isError } = useLiveFeedGantt(runId);
   const bars = data?.bars ?? [];
   const totalDuration = bars.length > 0 ? Math.max(...bars.map((b) => b.start + b.dur)) : 0;
   const waitingForRun = Boolean(runId) && bars.length > 0 && bars.every((b) => b.source === "stub");
+  const ticks = totalDuration > 0
+    ? Array.from({ length: TICK_COUNT + 1 }, (_, i) => (totalDuration / TICK_COUNT) * i)
+    : [];
 
   return (
     <div className="px-3 pb-3 shrink-0">
-      <div className="rounded-lg p-3 bg-card border border-border">
+      <Panel className="!p-3">
         <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
           Pipeline Timeline — end-to-end: {totalDuration.toFixed(1)}s
         </div>
@@ -43,6 +51,13 @@ export function GanttStrip({ runId }: { runId?: string }) {
                 {row.id}
               </span>
               <div className="flex-1 relative h-3.5 rounded overflow-hidden bg-background">
+                {ticks.map((t) => (
+                  <div
+                    key={t}
+                    className="absolute top-0 h-full w-px bg-border/60"
+                    style={{ left: `${(t / totalDuration) * 100}%` }}
+                  />
+                ))}
                 <div
                   className="absolute top-0 h-full rounded flex items-center px-1 text-[9px] font-mono transition-all duration-300 ease-out motion-reduce:transition-none"
                   style={{
@@ -62,8 +77,24 @@ export function GanttStrip({ runId }: { runId?: string }) {
               )}
             </div>
           ))}
+          {ticks.length > 0 && (
+            <div className="flex items-center gap-2 pt-1">
+              <span className="w-4 shrink-0" />
+              <div className="flex-1 relative h-3">
+                {ticks.map((t) => (
+                  <span
+                    key={t}
+                    className="absolute top-0 text-[8px] font-mono text-muted-foreground/70 -translate-x-1/2"
+                    style={{ left: `${(t / totalDuration) * 100}%` }}
+                  >
+                    {t.toFixed(0)}s
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      </Panel>
     </div>
   );
 }

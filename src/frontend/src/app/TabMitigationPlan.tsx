@@ -71,7 +71,7 @@ export function TabMitigationPlan({ runId }: { runId?: string }) {
 
   return (
     <div className="h-full overflow-y-auto p-3 space-y-3">
-      <section className={`rounded-panel border p-4 ${bannerClass}`}>
+      <section className={`rounded-panel shadow-panel border p-4 ${bannerClass}`}>
         <div className="flex flex-wrap items-center gap-3">
           <AlertTriangle size={16} />
           <div className="min-w-0">
@@ -104,7 +104,7 @@ export function TabMitigationPlan({ runId }: { runId?: string }) {
 
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_320px]">
         <main className="space-y-3">
-          <section className="rounded-panel bg-card border border-border p-4">
+          <section className="rounded-panel shadow-panel bg-card border border-border p-4">
             <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Ranked Mitigation Actions</div>
             <div className="mt-3 space-y-3">
               {topThree.map((action) => (

@@ -7,6 +7,7 @@
  * a live query; ported from _reference/App.mockup.tsx:1011-1027.
  */
 import { useEffect, useState } from "react";
+import { Panel } from "../Panel";
 
 const FAITHFULNESS_THRESHOLD = 0.75;
 
@@ -21,8 +22,7 @@ export function FaithfulnessGatePanel() {
   }, []);
 
   return (
-    <div className="rounded-lg p-4 bg-card border border-border">
-      <div className="text-xs font-semibold text-muted-strong mb-2">Faithfulness Gate Status</div>
+    <Panel title="Faithfulness Gate Status">
       <div className="text-[11px] text-muted-foreground leading-relaxed mb-3">
         When <span className="font-mono text-risk-medium">faithfulness &lt; {FAITHFULNESS_THRESHOLD}</span> →
         mitigation plan routed to human review, Slack suppressed.
@@ -41,6 +41,6 @@ export function FaithfulnessGatePanel() {
           <div className="text-muted-foreground mt-0.5">Example — human review</div>
         </div>
       </div>
-    </div>
+    </Panel>
   );
 }

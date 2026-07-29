@@ -20,7 +20,7 @@ export function JudgePanel({ data }: { data: RiskClassification }) {
   if (judge_verdict === null) {
     const fallbackSource = llm_signal.predicted_label !== null ? "GPT-4o Signal 3" : "the rule-based composite";
     return (
-      <div className={`rounded-lg p-4 bg-card border border-border${mountClass}`}>
+      <div className={`rounded-panel shadow-panel p-4 bg-card border border-border${mountClass}`}>
         <div className="flex items-center gap-3 mb-2">
           <span className="text-xs font-semibold text-risk-medium">LLM-as-Judge Arbitration</span>
           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-risk-medium/10 text-risk-medium">

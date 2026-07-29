@@ -77,8 +77,24 @@ Panels use `rounded-panel`, buttons use `rounded-btn`, badges/pills use `rounded
 
 ## Elevation & borders
 
-All panels: `1px solid` `border`, no drop shadow — flat "command center" look. Depth comes from
-background tone (`panel` vs `bg`), not shadow.
+Superseded 2026-07-28 (Pass 2 of the UI polish work): the team locked in **light mode only**
+(the dark-theme token table above is no longer the shipped default — `:root` in `theme.css`
+carries the light values, `.dark` is a retained-but-unused override, not a live toggle). In
+light mode, `background` (`#F8FAFC`) and `card` (`#FFFFFF`) are only ~2% apart in lightness, so
+the original "depth from background tone alone" rule reads as flat rather than layered.
+
+All panels now carry both: `1px solid` `border` **and** a shadow, via the shared `<Panel>`
+component (`src/app/components/Panel.tsx`) and the `--shadow-panel` token in `theme.css`:
+
+```css
+--shadow-panel: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+```
+
+Applied as `shadow-panel` (Tailwind utility, generated via the `@theme inline` block). Use
+`<Panel>` for new panels; where a panel's structure doesn't fit `<Panel>`'s title/children
+shape (dynamic per-item border colors, split header/scroll-body layouts), apply
+`rounded-panel shadow-panel` directly to keep the same elevation without forcing the JSX
+wrapper.
 
 ## Animation tokens
 
@@ -99,8 +115,13 @@ Exact prop shape for every shared component — defined once, never redefined on
 - `<RiskBadge level pulse? size="sm"|"md"|"lg" />`
 - `<AgentNode id name status compact? />`
 - `<CitationChip source collection />`
-- `<Panel title rightContent?>` — standard bordered card wrapper
-- `<Button variant="primary"|"ghost"|"disabled">`
+- `<Panel title rightContent? className?>` — standard bordered card wrapper (implemented
+  Pass 2, `src/app/components/Panel.tsx`; previously documented but not built)
+- `<HeroStat value label threshold? status="pass"|"fail"|"neutral" size="sm"|"md"|"lg" />` —
+  headline-metric tile, extracted from the RAGAS scorecard pattern (`src/app/components/HeroStat.tsx`)
+- `<EmptyState icon title subtitle? />` — no-data placeholder (`src/app/components/EmptyState.tsx`)
+- `<Button variant="primary"|"ghost"|"disabled">` — still undocumented-but-unbuilt as of Pass 2;
+  each screen inlines its own button classes (see Pass 2 report)
 - `<Tabs>` — the 6-tab bar; the icon rail is a cosmetic mirror of the same active-tab state
   (single source of truth — do not track two separate `activeTab` states)
 

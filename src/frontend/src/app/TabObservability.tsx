@@ -1,11 +1,12 @@
 import { Fragment, useEffect, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList,
   PieChart, Pie, Cell, ResponsiveContainer,
 } from "recharts";
 import { usePipelineStatus } from "./hooks/usePipelineStatus";
 import { API_BASE_URL } from "./api/config";
+import { Panel } from "./components/Panel";
 
 // ── Shared style tokens (matches App.mockup.tsx) ──────────────────────────
 // Recharts' contentStyle/fill/stroke props take literal CSS values, but
@@ -73,6 +74,38 @@ export function TabObservability() {
 
   const sessionTotal = costData.reduce((s, r) => s + r.cost, 0);
   const traceUrl     = pipeline?.langfuse_trace_url ?? null;
+  const dominantVerdict = verdictData.length
+    ? verdictData.reduce((max, d) => (d.value > max.value ? d : max), verdictData[0])
+    : null;
+
+  // Real per-agent latency can contain a genuine one-off outlier (e.g. an
+  // agent hanging on a slow external call) orders of magnitude above the
+  // rest — plotting it uncapped collapses every other agent's bar to zero.
+  // Cap the visual axis at ~p95 of all values in the current dataset and
+  // annotate any bar that exceeds it with its true value, rather than
+  // silently clipping or dropping the data point.
+  const allLatencyValues = latencyData.flatMap((d) => [d.p50, d.p90, d.p99]).sort((a, b) => a - b);
+  const latencyAxisCap = allLatencyValues.length
+    ? Math.max(allLatencyValues[Math.min(Math.floor(allLatencyValues.length * 0.95), allLatencyValues.length - 1)], 1)
+    : 10;
+  const latencyChartData = latencyData.map((d) => ({
+    ...d,
+    p50Capped: Math.min(d.p50, latencyAxisCap),
+    p90Capped: Math.min(d.p90, latencyAxisCap),
+    p99Capped: Math.min(d.p99, latencyAxisCap),
+  }));
+  const formatLatencySeconds = (v: number) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v.toFixed(1));
+  const overflowLabel = (dataKey: "p50" | "p90" | "p99", color: string) =>
+    (props: any) => {
+      const { x, y, width, height, index } = props;
+      const real = latencyChartData[index]?.[dataKey] ?? 0;
+      if (real <= latencyAxisCap) return null;
+      return (
+        <text x={x + width + 4} y={y + height / 2} dy={3} fontSize={9} fill={color} fontFamily="JetBrains Mono">
+          {`${formatLatencySeconds(real)}s ›`}
+        </text>
+      );
+    };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -103,7 +136,7 @@ export function TabObservability() {
             <div className="grid grid-cols-2 gap-3">
 
               {/* Cost by Agent */}
-              <div className="rounded-lg p-4" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
+              <Panel>
                 <div className="text-xs font-semibold text-slate-600 mb-0.5">Cost by Agent</div>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[10px] font-mono text-slate-600">
@@ -143,25 +176,37 @@ export function TabObservability() {
                     <Bar dataKey="cost" fill="#3B82F6" radius={[0, 3, 3, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
-              </div>
+              </Panel>
 
               {/* Verdict Distribution */}
-              <div className="rounded-lg p-4" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
+              <Panel>
                 <div className="text-xs font-semibold text-slate-600 mb-3">Verdict-Type Distribution</div>
                 <div className="flex items-center gap-4">
-                  <ResponsiveContainer width={110} height={110}>
-                    <PieChart>
-                      <Pie
-                        data={verdictData}
-                        cx="50%" cy="50%"
-                        innerRadius={32} outerRadius={52}
-                        paddingAngle={2}
-                        dataKey="value"
-                      >
-                        {verdictData.map((e, i) => <Cell key={i} fill={e.color} />)}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <div className="relative shrink-0" style={{ width: 110, height: 110 }}>
+                    <ResponsiveContainer width={110} height={110}>
+                      <PieChart>
+                        <Pie
+                          data={verdictData}
+                          cx="50%" cy="50%"
+                          innerRadius={32} outerRadius={52}
+                          paddingAngle={2}
+                          dataKey="value"
+                        >
+                          {verdictData.map((e, i) => <Cell key={i} fill={e.color} />)}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                    {dominantVerdict && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <div className="text-base font-mono font-bold text-slate-800 leading-none">
+                          {dominantVerdict.value}%
+                        </div>
+                        <div className="text-[8px] text-slate-500 mt-0.5 max-w-[64px] text-center leading-tight truncate">
+                          {dominantVerdict.name}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <div className="space-y-2">
                     {verdictData.map((d) => (
                       <div key={d.name} className="flex items-center gap-2">
@@ -172,17 +217,17 @@ export function TabObservability() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </Panel>
             </div>
 
             {/* P50 / P90 / P99 Latency */}
-            <div className="rounded-lg p-4" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
+            <Panel>
               <div className="text-xs font-semibold text-slate-600 mb-3">
                 P50 / P90 / P99 Latency per Agent (s)
               </div>
-              <ResponsiveContainer width="100%" height={Math.max(140, latencyData.length * 32)}>
-                <BarChart data={latencyData} layout="vertical" margin={{ left: 4, right: 12 }}>
-                  <XAxis type="number" tick={{ fill: "#475569", fontSize: 9 }} />
+              <ResponsiveContainer width="100%" height={Math.max(140, latencyChartData.length * 32)}>
+                <BarChart data={latencyChartData} layout="vertical" margin={{ left: 4, right: 36 }}>
+                  <XAxis type="number" domain={[0, latencyAxisCap]} tick={{ fill: "#475569", fontSize: 9 }} />
                   <YAxis
                     type="category"
                     dataKey="agent"
@@ -191,16 +236,28 @@ export function TabObservability() {
                     interval={0}
                   />
                   <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" horizontal={false} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} />
-                  <Bar dataKey="p50" fill="#3B82F6" name="P50" radius={[0, 2, 2, 0]} barSize={5} />
-                  <Bar dataKey="p90" fill="#8B5CF6" name="P90" radius={[0, 2, 2, 0]} barSize={5} />
-                  <Bar dataKey="p99" fill="#EC4899" name="P99" radius={[0, 2, 2, 0]} barSize={5} />
+                  <Tooltip
+                    contentStyle={TOOLTIP_STYLE}
+                    formatter={(_value: number, name: string, props: any) => {
+                      const key = name === "P50" ? "p50" : name === "P90" ? "p90" : "p99";
+                      return [`${props.payload[key]}s`, name];
+                    }}
+                  />
+                  <Bar dataKey="p50Capped" fill="#3B82F6" name="P50" radius={[0, 2, 2, 0]} barSize={5}>
+                    <LabelList dataKey="p50Capped" content={overflowLabel("p50", "#3B82F6")} />
+                  </Bar>
+                  <Bar dataKey="p90Capped" fill="#8B5CF6" name="P90" radius={[0, 2, 2, 0]} barSize={5}>
+                    <LabelList dataKey="p90Capped" content={overflowLabel("p90", "#8B5CF6")} />
+                  </Bar>
+                  <Bar dataKey="p99Capped" fill="#EC4899" name="P99" radius={[0, 2, 2, 0]} barSize={5}>
+                    <LabelList dataKey="p99Capped" content={overflowLabel("p99", "#EC4899")} />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
-            </div>
+            </Panel>
 
             {/* Prompt / Response Inspector */}
-            <div className="rounded-lg p-4" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
+            <Panel>
               <div className="text-xs font-semibold text-slate-600 mb-3">
                 Prompt / Response Inspector — llm_call_log
               </div>
@@ -259,7 +316,7 @@ export function TabObservability() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Panel>
           </div>
         ) : (
           <GuardrailsSubTab />
@@ -293,7 +350,7 @@ function GuardrailsSubTab() {
     <div className="space-y-3">
       {/* Headline */}
       <div
-        className="rounded-lg p-4 flex items-center gap-5"
+        className="rounded-panel shadow-panel p-4 flex items-center gap-5"
         style={{ background: "#EF444410", border: `1px solid ${RISK_COLORS.CRITICAL}30` }}
       >
         <div>
@@ -308,7 +365,7 @@ function GuardrailsSubTab() {
       </div>
 
       {/* Guardrail table */}
-      <div className="rounded-lg p-4" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
+      <Panel>
         <div className="text-xs font-semibold text-slate-600 mb-3">Guardrail Activity</div>
         <div className="overflow-x-auto">
           <table className="w-full text-[10px] font-mono">
@@ -379,10 +436,10 @@ function GuardrailsSubTab() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Panel>
 
       {/* Guardrail map */}
-      <div className="rounded-lg p-4" style={{ background: PANEL, border: `1px solid ${BORDER}` }}>
+      <Panel>
         <div className="text-xs font-semibold text-slate-600 mb-3">Guardrail Map — Pipeline Annotations</div>
         <div className="flex items-start gap-1.5 overflow-x-auto pb-1">
           {[
@@ -420,7 +477,7 @@ function GuardrailsSubTab() {
             </div>
           ))}
         </div>
-      </div>
+      </Panel>
     </div>
   );
 }

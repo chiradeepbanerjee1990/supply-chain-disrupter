@@ -62,7 +62,7 @@ export function VerdictCard({ data }: { data: RiskClassification }) {
   const displayScore = useCountUp(score, 800);
 
   return (
-    <div className="rounded-panel p-5 bg-card border border-border">
+    <div className="rounded-panel shadow-panel p-5 bg-card border border-border">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2 mb-2">

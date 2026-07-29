@@ -1,3 +1,5 @@
+import { useAnimateOnChange } from "../utils/animation";
+
 export type AgentStatus = "Idle" | "Running" | "Complete" | "Skipped-Optional" | "Failed-Fallback";
 
 const STATUS_CLASSES: Record<AgentStatus, string> = {
@@ -22,13 +24,22 @@ export function AgentNode({
   compact?: boolean;
 }) {
   const durationLabel = duration_ms != null ? `${(duration_ms / 1000).toFixed(1)}s` : null;
+  // Fires only when THIS node's real, backend-polled status actually
+  // transitions (Idle→Running→Complete/...) — never on a background
+  // refetch that returns the same status, and never on a fixed
+  // client-side timer. Multiple nodes naturally stagger because L1..L7
+  // transition at different real wall-clock times as the pipeline runs,
+  // not because of an artificial per-index delay.
+  const justTransitioned = useAnimateOnChange(status);
   return (
     <div className="flex flex-col items-center gap-0.5">
       <div
         title={`${id}: ${name} — ${status}${durationLabel ? ` (${durationLabel})` : ""}`}
         className={`flex items-center justify-center rounded font-mono font-bold text-[10px] border-[1.5px] ${
           compact ? "w-8 h-7" : "w-10 h-9"
-        } ${status === "Running" ? "animate-pulse" : ""} ${STATUS_CLASSES[status]}`}
+        } ${status === "Running" ? "animate-pulse" : ""} ${
+          justTransitioned ? "animate-fade-stagger motion-reduce:animate-none" : ""
+        } ${STATUS_CLASSES[status]}`}
       >
         {id}
       </div>

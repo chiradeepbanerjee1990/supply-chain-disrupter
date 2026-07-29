@@ -58,7 +58,7 @@ function TraceRow({ query }: { query: RagTraceQuery }) {
 
 export function MitigationTraceDetails({ trace }: { trace: RagTraceQuery[] }) {
   return (
-    <details className="rounded-panel border border-border bg-card p-4">
+    <details open className="rounded-panel shadow-panel border border-border bg-card p-4">
       <summary className="cursor-pointer list-none text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         RAG Query Trace
       </summary>

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import time
 import uuid
 from contextlib import contextmanager
@@ -208,6 +209,28 @@ def agent_span(
                 logger.warning("Langfuse span close failed for %s: %s", agent_name, exc)
 
 
+_PREVIEW_SEPARATOR_RE = re.compile(r"[═─━╌╍]{2,}")
+_PREVIEW_WHITESPACE_RE = re.compile(r"\s+")
+
+
+def _clean_prompt_preview(user_message: str, length: int = 200) -> str:
+    """Build a short, human-readable preview of an LLM user message.
+
+    Agent prompt builders (news_agent, llm_signal, judge_agent, mitigation_agent)
+    open their user message with decorative box-drawing separator lines
+    (e.g. "═══...") ahead of the first real header. Slicing raw text at
+    `length` chars therefore captured mostly/only separator characters,
+    which render as a bare horizontal line in the Prompt Inspector table.
+    Strip separator runs and collapse whitespace before truncating so the
+    preview shows actual content.
+    """
+    cleaned = _PREVIEW_SEPARATOR_RE.sub(" ", user_message or "")
+    cleaned = _PREVIEW_WHITESPACE_RE.sub(" ", cleaned).strip()
+    if len(cleaned) <= length:
+        return cleaned
+    return cleaned[:length].rstrip() + "..."
+
+
 def record_llm_generation(
     trace: Any,
     span: Any,
@@ -245,7 +268,7 @@ def record_llm_generation(
             run_id=run_id,
             agent_name=agent_name,
             model=model,
-            prompt_preview=(user_message or "")[:200],
+            prompt_preview=_clean_prompt_preview(user_message),
             full_prompt=f"SYSTEM:\n{system_prompt}\n\nUSER:\n{user_message}",
             full_response=str(parsed_output) if parsed_output is not None else None,
             input_tokens=input_tokens,

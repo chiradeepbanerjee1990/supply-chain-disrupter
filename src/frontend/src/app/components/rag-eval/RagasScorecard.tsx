@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { useRagScorecard } from "../../hooks/useRagEval";
 import { useAnimateOnChange } from "../../utils/animation";
+import { HeroStat } from "../HeroStat";
 
 const STAGGER_MS = 100;
 
@@ -35,18 +36,17 @@ export function RagasScorecard() {
   return (
     <div className="grid grid-cols-4 gap-3">
       {data.map((tile, i) => {
-        const colorClass = tile.passed ? "text-risk-low" : "text-risk-critical";
         const borderClass = tile.passed ? "border-risk-low/30" : "border-risk-critical/30";
         const barClass = tile.passed ? "bg-risk-low" : "bg-risk-critical";
         return (
-          <div key={tile.metric} className={`rounded-lg p-4 bg-card border ${borderClass}`}>
-            <div className="text-[9px] text-muted-foreground uppercase tracking-wider mb-2">
-              {tile.metric}
-            </div>
-            <div className={`text-3xl font-mono font-bold mb-1 ${colorClass}`}>
-              {tile.score.toFixed(2)}
-            </div>
-            <div className="h-1.5 rounded-full overflow-hidden mb-2 bg-border">
+          <div key={tile.metric} className={`rounded-panel shadow-panel p-4 bg-card border ${borderClass}`}>
+            <HeroStat
+              value={tile.score.toFixed(2)}
+              label={tile.metric}
+              threshold={`threshold: ${tile.threshold}`}
+              status={tile.passed ? "pass" : "fail"}
+            />
+            <div className="h-1.5 rounded-full overflow-hidden mt-2 bg-border">
               <div
                 className={`h-full rounded-full ${barClass} transition-[width] duration-[600ms] ease-out motion-reduce:transition-none`}
                 style={{
@@ -54,10 +54,6 @@ export function RagasScorecard() {
                   transitionDelay: `${i * STAGGER_MS}ms`,
                 }}
               />
-            </div>
-            <div className="flex items-center justify-between text-[9px]">
-              <span className="text-muted-foreground font-mono">threshold: {tile.threshold}</span>
-              <span className={`font-mono ${colorClass}`}>{tile.passed ? "✓ Pass" : "✗ Fail"}</span>
             </div>
           </div>
         );
