@@ -76,6 +76,14 @@ interface SimulationResponse {
 // v3 response (model selection, MAPE, regressors). Reused here rather than
 // re-plumbing this detail into forecast_output, which only stores the
 // run-level baseline/adjusted series (see module docstring).
+// model_selected values: "prophet" | "sarimax" | "timegpt" | "sarimax (timegpt fallback)"
+function formatModelName(modelSelected: string | undefined): string {
+  if (!modelSelected) return "Prophet";
+  const base = modelSelected.split(" ")[0];
+  const names: Record<string, string> = { prophet: "Prophet", sarimax: "SARIMAX", timegpt: "TimeGPT" };
+  return names[base] ?? base;
+}
+
 interface SkuForecastDetail {
   sku_id: string;
   model_selected: string;
@@ -435,7 +443,9 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
         {forecastStatus === "ready" && forecast ? (
           <Panel className="flex flex-col">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-semibold text-slate-900">Demand Forecasting — Prophet</span>
+              <span className="text-sm font-semibold text-slate-900">
+                Demand Forecasting — {formatModelName(skuDetail?.model_selected)}
+              </span>
               <div className="flex items-center gap-1.5">
                 <SkuIdBadge skuId={forecast.category} />
                 <ImpactDurationBadge days={forecast.impact_duration_days} />
@@ -575,15 +585,15 @@ export function TabForecastSimulation({ runId }: { runId?: string }) {
           </Panel>
         ) : forecastStatus === "missing" ? (
           <EmptyPanel
-            title="Demand Forecasting — Prophet"
+            title="Demand Forecasting"
             badge="Optional · L5"
             message="No forecast snapshot for this run yet. Run the pipeline first."
             icon={TrendingUp}
           />
         ) : forecastStatus === "error" ? (
-          <EmptyPanel title="Demand Forecasting — Prophet" badge="Optional · L5" message="Could not load forecast data." icon={TrendingUp} />
+          <EmptyPanel title="Demand Forecasting" badge="Optional · L5" message="Could not load forecast data." icon={TrendingUp} />
         ) : (
-          <EmptyPanel title="Demand Forecasting — Prophet" badge="Optional · L5" message="Loading…" icon={TrendingUp} />
+          <EmptyPanel title="Demand Forecasting" badge="Optional · L5" message="Loading…" icon={TrendingUp} />
         )}
 
         {/* Monte Carlo */}
