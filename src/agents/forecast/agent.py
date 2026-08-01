@@ -857,12 +857,13 @@ def _write_forecast_to_db(result: _DFAResult) -> None:
                 result.stockout_prob,
                 result.mape_prophet_selected,
                 now,
+                result.model_selected,
             )
             for r in result.demand_forecast
         ]
         with get_connection() as conn:
             conn.executemany(
-                "INSERT OR REPLACE INTO demand_forecasts VALUES (?,?,?,?,?,?,?,?)", rows
+                "INSERT OR REPLACE INTO demand_forecasts VALUES (?,?,?,?,?,?,?,?,?)", rows
             )
             conn.commit()
     except Exception as exc:
