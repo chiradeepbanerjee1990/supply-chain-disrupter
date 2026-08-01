@@ -27,6 +27,17 @@ export function VerdictCard({ data }: { data: RiskClassification }) {
   const score = rule_signal.composite_score;
   const targetOffset = CIRCUMFERENCE * (1 - Math.min(score, 1));
 
+  // The composite/threshold gauge only tells half the story: delivery_status
+  // overrides and duration escalation (agent.py's _apply_delivery_floor /
+  // _escalate_label) can force final_label above what the score alone
+  // implies. Surface whichever override actually fired so a CRITICAL verdict
+  // with a sub-threshold score isn't a mystery on screen.
+  const overrideReason = rule_signal.delivery_status_override
+    ? `delivery_status override: "${rule_signal.delivery_status_override}" forces ${rule_signal.base_label}`
+    : rule_signal.escalated
+      ? `duration escalation: ${rule_signal.duration_days}d pushed ${rule_signal.base_label} → ${rule_signal.escalated_label}`
+      : null;
+
   const shouldAnimateGauge = useAnimateOnChange(run_id);
   // Mount the ring at "empty" for one frame, then let the CSS transition on
   // stroke-dashoffset carry it to targetOffset — the standard two-phase
@@ -85,6 +96,11 @@ export function VerdictCard({ data }: { data: RiskClassification }) {
               threshold: {threshold.toFixed(2)}
             </span>
           </div>
+          {overrideReason && (
+            <div className="mt-2 text-[10px] font-mono text-risk-critical leading-relaxed">
+              ⚠ {overrideReason}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col items-center shrink-0">
