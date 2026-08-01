@@ -87,6 +87,7 @@ def get_sku_forecast(sku_id: str):
                 regressor_selection_method="backtest_ablation",
                 expected_drop_pct=rows[0].get("deviation_pct") or 0.0,
                 stockout_prob=rows[0].get("stockout_prob"),
+                model_selected=rows[0].get("model_selected") or "prophet",
                 mape_prophet_trend_only=None,
                 mape_prophet_selected=rows[0].get("mape_prophet"),
                 mape_dataset_baseline_avg=None,

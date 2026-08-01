@@ -2140,10 +2140,15 @@ def ensure_forecast_schema() -> None:
                 stockout_prob   REAL,
                 mape_prophet    REAL,
                 generated_at_utc TEXT,
+                model_selected  TEXT,
                 PRIMARY KEY (sku_id, week_start)
             )
             """
         )
+        # Migration: older DBs may have been created before model_selected existed.
+        existing_cols = {row[1] for row in conn.execute("PRAGMA table_info(demand_forecasts)")}
+        if "model_selected" not in existing_cols:
+            conn.execute("ALTER TABLE demand_forecasts ADD COLUMN model_selected TEXT")
 
 
 def fetch_forecast_for_sku(sku_id: str) -> List[Dict[str, Any]]:
@@ -2152,7 +2157,8 @@ def fetch_forecast_for_sku(sku_id: str) -> List[Dict[str, Any]]:
     rows = execute_query(
         """
         SELECT sku_id, week_start, demand_baseline, demand_disrupted,
-               deviation_pct, stockout_prob, mape_prophet, generated_at_utc
+               deviation_pct, stockout_prob, mape_prophet, generated_at_utc,
+               model_selected
         FROM demand_forecasts
         WHERE sku_id = ?
         ORDER BY week_start ASC
